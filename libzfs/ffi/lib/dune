@@ -1,0 +1,26 @@
+(library
+ (name libzfs_ffi)
+ (public_name libzfs.ffi)
+ (modules g m)
+ (foreign_stubs
+  (language c)
+  (names zfs_stubs))
+ (c_library_flags
+  (:include ../../config/c_library_flags.sexp))
+ (libraries libzfs.bindings ctypes.stubs ctypes))
+
+(rule
+ (targets g.ml)
+ (deps ../stubgen/ffi_stubgen.exe)
+ (action
+  (with-stdout-to
+   %{targets}
+   (run %{deps} -ml))))
+
+(rule
+ (targets zfs_stubs.c)
+ (deps ../stubgen/ffi_stubgen.exe)
+ (action
+  (with-stdout-to
+   %{targets}
+   (run %{deps} -c))))

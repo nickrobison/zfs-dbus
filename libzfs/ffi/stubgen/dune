@@ -1,0 +1,3 @@
+(executable
+ (name ffi_stubgen)
+ (libraries libzfs.bindings ctypes ctypes.stubs))

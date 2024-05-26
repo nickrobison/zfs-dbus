@@ -1,0 +1,5 @@
+(executable
+ (public_name zfs_dbus)
+ (package zfs_dbus)
+ (name main)
+ (libraries zfs_dbus))

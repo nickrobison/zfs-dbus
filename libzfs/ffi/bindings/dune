@@ -1,0 +1,4 @@
+(library
+ (name libzfs_bindings)
+ (public_name libzfs.bindings)
+ (libraries ctypes.stubs ctypes))
