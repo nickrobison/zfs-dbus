@@ -1,0 +1,4 @@
+(library
+ (name libzfs)
+ (public_name libzfs)
+ (libraries libzfs.ffi ctypes))

@@ -1,4 +1,5 @@
 (lang dune 3.15)
+(using ctypes 0.3)
 
 (name zfs_dbus)
 
@@ -26,5 +27,4 @@
 (package
   (name libzfs)
   (synopsis "ZFS bindings")
-  (depends
-  ctypes))
+  (depends ctypes))
