@@ -1,8 +1,7 @@
-
 let zfs_iterator iter_fn create_fn =
   let result = ref [] in
-  let handler handle _ = 
-    result := !result @ [ (create_fn handle)];
+  let handler handle _ =
+    result := !result @ [ create_fn handle ];
     0
   in
   let u = Ctypes.allocate Ctypes.int 1 in

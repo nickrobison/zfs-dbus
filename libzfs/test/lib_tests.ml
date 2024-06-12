@@ -10,8 +10,7 @@ let list_pools () =
   let pools = Zfs.pools l in
   Alcotest.(check int) "Should have pools" 2 (List.length pools)
 
-
-let list_datasets () = 
+let list_datasets () =
   let l = Zfs.init () in
   let datasets = Zfs.datasets l in
   Alcotest.(check int) "Should have datasets" 0 (List.length datasets)

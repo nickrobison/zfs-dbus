@@ -27,4 +27,4 @@
 (package
   (name libzfs)
   (synopsis "ZFS bindings")
-  (depends ctypes))
+  (depends ocaml dune ctyes (alcotest-lwt :with-test)))

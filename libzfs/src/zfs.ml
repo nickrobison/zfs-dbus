@@ -24,16 +24,31 @@ let pools t =
   let _d = M.zpool_iter t handler (to_voidp u) in
   !pool_ref
 
-  let get_pool t name = 
-    let pool_handle = M.zpool_open t name in
-    Zpool.of_handle t pool_handle
+let get_pool t name =
+  let pool_handle = M.zpool_open t name in
+  Zpool.of_handle t pool_handle
 
-
-
-let datasets t = 
-  let handler _h _ = 
-    print_endline("Something!!!!");
-    0 in
-    let u = allocate int 1 in
-    let _d = M.zfs_iter_root t handler (to_voidp u) in
+let datasets t =
+  let handler _h _ =
+    print_endline "Something!!!!";
+    0
+  in
+  let u = allocate int 1 in
+  let _d = M.zfs_iter_root t handler (to_voidp u) in
   []
+
+let last_error t =
+  let code = M.zfs_errno t in
+  let ii = M.zfs_error_init code in
+  let action = M.zfs_error_action t in
+  let description = M.zfs_error_description t in
+  print_endline ii;
+  Zfs_exception.create code description action |> Option.some
+
+let create_dataset t ~name =
+  let fs_int = M.int_of_dataset_type FILESYSTEM in
+  match M.zfs_create t name fs_int null with
+  | 0 ->
+      let handle = M.zfs_open t name fs_int in
+      Ok (Dataset.of_handle handle)
+  | _ -> last_error t |> Option.get |> Result.error
