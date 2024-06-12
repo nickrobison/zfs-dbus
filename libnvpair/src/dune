@@ -1,0 +1,16 @@
+(library
+ (name libnvpair)
+ (public_name libnvpair)
+ (ctypes
+  (external_library_name libzfs)
+  (build_flags_resolver pkg_config)
+  (headers
+   (include "libnvpair.h"))
+  (type_description
+   (instance Types)
+   (functor Type_description))
+  (function_description
+   (instance Functions)
+   (functor Function_description))
+  (generated_types Types_generated)
+  (generated_entry_point C)))
