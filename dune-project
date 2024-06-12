@@ -28,3 +28,8 @@
   (name libzfs)
   (synopsis "ZFS bindings")
   (depends ocaml dune ctyes (alcotest-lwt :with-test)))
+
+(package
+  (name libnvpair)
+  (synopsis "Libnvpair bindings")
+  (depends ocaml dune ctypes))
