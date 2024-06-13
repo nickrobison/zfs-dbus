@@ -20,6 +20,12 @@ let handle_add f k v =
   let _ = f k v in
   ()
 
+
+  let handle_lookup f t k v = 
+    match f t k v with 
+    | 0 -> Some !@v
+    | _ -> None
+
 let size t =
   let open Unsigned in
   let sz = allocate PosixTypes.size_t (Size_t.of_int 0) in
@@ -34,9 +40,11 @@ let add_bool t k v =
   let _ = handle_add (F.nvlist_add_bool t) k v in
   t
 
-let get_string _t _k = None
+let get_string t k = 
+  let v = allocate string "" in
+  handle_lookup F.nvlist_lookup_string t k v
+
 
 let get_bool t k =
   let v = allocate bool false in
-  let _ = F.nvlist_lookup_bool t k v in
-  Some !@v
+  handle_lookup F.nvlist_lookup_bool t k v

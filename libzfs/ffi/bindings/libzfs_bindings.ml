@@ -1,5 +1,6 @@
 module M (F : Ctypes.FOREIGN) = struct
   include Zfs_types
+  include Libnvpair_bindings.M (F)
 
   let foreign = F.foreign
   let foreign_value = F.foreign_value
