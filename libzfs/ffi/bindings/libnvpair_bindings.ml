@@ -1,7 +1,8 @@
 open Ctypes
-module Types = Types_generated
 
-module Functions (F : Ctypes.FOREIGN) = struct
+module Types = Nvpair_types
+
+module M (F: Ctypes.FOREIGN) = struct
   open F
 
   let nvlist_alloc =
@@ -24,5 +25,8 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let nvlist_lookup_bool =
     foreign "nvlist_lookup_boolean_value"
-      (ptr Types.Nvlist.t @-> string @-> ptr Types.boolean_t @-> returning int)
+      (ptr Types.Nvlist.t @-> string @-> ptr bool @-> returning int)
+
+  let nvlist_lookup_string = 
+    foreign "nvlist_lookup_string" (ptr Types.Nvlist.t @-> string @-> ptr string @-> returning int)
 end

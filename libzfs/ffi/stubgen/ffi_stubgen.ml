@@ -1,5 +1,5 @@
 let prefix = "zfs_stubs"
-let prologue = "\n#include <libzfs.h>\n"
+let prologue = "\n#include <libzfs.h>\n#include <libnvpair.h>\n#include <sys/nvpair.h>\n"
 
 let () =
   let generate_ml, generate_c = (ref false, ref false) in

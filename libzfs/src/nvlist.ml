@@ -1,14 +1,14 @@
 open Ctypes
-module T = C.Types
-module F = C.Functions
+module F = Libzfs_ffi.M
 
-type t = T.Nvlist.t ptr
+type t = F.Nvlist.t ptr
 type 'a setter = t -> string -> 'a -> t
 type 'a getter = t -> string -> 'a option
 
 let empty () =
-  let ls = allocate (ptr T.Nvlist.t) (from_voidp T.Nvlist.t null) in
-  match F.nvlist_alloc ls T.unique_name 0 with
+  let ls = allocate (ptr F.Nvlist.t) (from_voidp F.Nvlist.t null) in
+  (* Fixme:: Constant? *)
+  match F.nvlist_alloc ls 1 0 with
   | 0 ->
       let handle = !@ls in
       Gc.finalise (fun v -> F.nvlist_free v) handle;
