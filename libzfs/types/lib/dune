@@ -6,4 +6,7 @@
 (rule
  (targets g.ml)
  (deps ../stubgen/ffi_ml_types_stubgen.exe)
- (action (with-stdout-to %{targets} (run %{deps}))))
+ (action
+  (with-stdout-to
+   %{targets}
+   (run %{deps}))))

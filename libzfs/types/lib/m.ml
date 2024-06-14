@@ -1,2 +1,2 @@
 include Nvpair_types
-include Nvpair_types.M(G)
+include Nvpair_types.M (G)

@@ -1,6 +1,4 @@
-let prologue = "
-#include <libnvpair.h>
-"
+let prologue = "\n#include <libnvpair.h>\n"
 
 let () =
   print_endline prologue;

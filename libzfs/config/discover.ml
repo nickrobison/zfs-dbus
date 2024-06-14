@@ -20,5 +20,5 @@ let () =
       C.Flags.write_sexp "cflags.sexp" (cfg.cflags @ [ "-D_LARGEFILE64_SOURCE" ]);
       C.Flags.write_sexp "c_library_flags.sexp"
         ([ cstubs_cflags ] @ cfg.libs @ cfg.cflags);
-        C.Flags.write_lines "ctypes-cflags" ([cstubs_cflags] @ cfg.cflags);
+      C.Flags.write_lines "ctypes-cflags" ([ cstubs_cflags ] @ cfg.cflags);
       C.Flags.write_lines "c_library_flags" cfg.libs)

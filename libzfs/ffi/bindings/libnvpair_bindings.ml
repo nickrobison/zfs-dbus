@@ -1,7 +1,6 @@
-
 module M (F : Ctypes.FOREIGN) = struct
   module T = Libzfs_types.M
-include T
+  include T
   (* include Nvpair_types *)
 
   let foreign = F.foreign
@@ -16,7 +15,8 @@ include T
   open C
 
   let nvlist_alloc =
-    foreign "nvlist_alloc" (ptr (ptr T.nvlist_t) @-> int @-> int @-> returning int)
+    foreign "nvlist_alloc"
+      (ptr (ptr T.nvlist_t) @-> int @-> int @-> returning int)
 
   let nvlist_free = foreign "nvlist_free" (ptr T.nvlist_t @-> returning void)
 
