@@ -32,6 +32,10 @@ module M (F : Ctypes.FOREIGN) = struct
     foreign "nvlist_add_boolean_value"
       (ptr T.nvlist_t @-> string @-> bool @-> returning int)
 
+  let nvlist_add_int =
+    foreign "nvlist_add_int32"
+      (ptr T.nvlist_t @-> string @-> int @-> returning int)
+
   let nvlist_lookup_bool =
     foreign "nvlist_lookup_boolean_value"
       (ptr T.nvlist_t @-> string @-> ptr bool @-> returning int)
@@ -39,4 +43,8 @@ module M (F : Ctypes.FOREIGN) = struct
   let nvlist_lookup_string =
     foreign "nvlist_lookup_string"
       (ptr T.nvlist_t @-> string @-> ptr string @-> returning int)
+
+  let nvlist_lookup_int =
+    foreign "nvlist_lookup_int32"
+      (ptr T.nvlist_t @-> string @-> ptr int @-> returning int)
 end

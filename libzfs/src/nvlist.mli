@@ -7,5 +7,8 @@ val size : t -> int
 val add_string : string setter
 val add_bool : bool setter
 val add_nvpair : Nvpair.t setter
+val add_int : int setter
 val get_string : string getter
 val get_bool : bool getter
+val get_int : int getter
+val encode : Nvpair.t list -> t

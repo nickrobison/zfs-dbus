@@ -35,6 +35,10 @@ let add_bool t k v =
   let _ = handle_add (F.nvlist_add_bool t) k v in
   t
 
+let add_int t k v =
+  let _ = handle_add (F.nvlist_add_int t) k v in
+  t
+
 let add_nvpair t _k _v = t
 
 let get_string t k =
@@ -44,3 +48,17 @@ let get_string t k =
 let get_bool t k =
   let v = allocate bool false in
   handle_lookup F.nvlist_lookup_bool t k v
+
+let get_int t k =
+  let v = allocate int 0 in
+  handle_lookup F.nvlist_lookup_int t k v
+
+let encode_nvpair nvlist key (nvp_value : Nvpair.typ) =
+  match nvp_value with
+  | String s -> add_string nvlist key s
+  | Bool b -> add_bool nvlist key b
+  | Int32 i -> add_int nvlist key i
+
+let encode pairs =
+  let ls = empty () in
+  List.fold_left (fun vlist (k, v) -> encode_nvpair vlist k v) ls pairs

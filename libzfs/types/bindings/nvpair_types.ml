@@ -4,6 +4,10 @@ module M (F : Ctypes.TYPE) = struct
   type nvlist_t = unit
 
   let nvlist_t = void
+
+  type nvpair_t = unit
+
+  let nvpair_t = void
   let unique_name = constant "NV_UNIQUE_NAME" int
 
   let mk_enum prefix typedef vals =

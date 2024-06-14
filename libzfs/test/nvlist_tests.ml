@@ -1,5 +1,13 @@
 open Libzfs
 
+type simple_record = { name : string; age : int; favorite : string option }
+
+let nvpairs_of_simple_record r =
+  let open Nvpair in
+  [ ("name", String r.name); ("age", Int32 r.age) ]
+  @ Option.fold ~none:[] ~some:(fun f -> [ ("favorite", String f) ]) r.favorite
+(* let simple_record_of_nvlist l = () *)
+
 let nvlist_test () =
   let l = Nvlist.empty () in
   Alcotest.(check int) "Should be empty" 16 (Nvlist.size l);
@@ -19,6 +27,20 @@ let nvlist_test () =
     "Should have string value" (Some "")
     (Nvlist.get_string l "test_string")
 
+let marshalling_test () =
+  let r : simple_record =
+    { name = "Test1"; age = 42; favorite = Some "icecream" }
+  in
+  let pairs = nvpairs_of_simple_record r in
+  Alcotest.(check int)
+    "Should have the correct number of pairs" 3 (List.length pairs);
+  let _ = Nvlist.encode pairs in
+  ()
+
 let v =
   let open Alcotest in
-  ("NVList tests", [ test_case "Simple NVList operations" `Quick nvlist_test ])
+  ( "NVList tests",
+    [
+      test_case "Simple NVList operations" `Quick nvlist_test;
+      test_case "Simple record tests" `Quick marshalling_test;
+    ] )
