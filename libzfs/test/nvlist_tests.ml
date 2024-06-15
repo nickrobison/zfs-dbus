@@ -1,7 +1,15 @@
 open Libzfs
 
+let printable_gen = QCheck2.Gen.(option string_printable)
+let age_gen = QCheck2.Gen.(0 -- 1)
+
 type simple_record = { name : string; age : int; favorite : string option }
-[@@deriving show, eq, qcheck2]
+[@@deriving show, eq]
+
+let simple_record name age favorite = { name; age; favorite }
+
+let gen_simple_record =
+  QCheck2.Gen.(simple_record <$> string_printable <*> age_gen <*> printable_gen)
 
 let record_testable = Alcotest.testable pp_simple_record equal_simple_record
 let missing_field f = raise (Invalid_argument ("Cannot find field: " ^ f))
@@ -68,7 +76,8 @@ let simple_record_test () =
   Alcotest.(check record_testable) "Should be the same" r r'
 
 let record_marshall_test =
-  QCheck2.Test.make ~name:"Record marshall" gen_simple_record (fun r ->
+  QCheck2.Test.make ~name:"Record marshall" ~print:show_simple_record
+    gen_simple_record (fun r ->
       let r' =
         nvpairs_of_simple_record r |> Nvlist.t_of_pairs |> Nvlist.pairs_of_t
         |> simple_record_of_pairs

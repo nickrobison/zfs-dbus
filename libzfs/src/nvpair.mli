@@ -13,3 +13,4 @@ type typ = Bool of bool | String of string | Int32 of int
 and t = string * typ
 
 val t_of_nvpair_t : M.nvpair_t -> t
+val pp : t Fmt.t
