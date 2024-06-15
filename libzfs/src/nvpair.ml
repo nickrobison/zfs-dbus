@@ -1,7 +1,7 @@
 module M = Libzfs_ffi.M
 open Ctypes
 
-type typ = Bool of bool | String of string | Int32 of int
+type typ = Bool of bool | String of string | Int32 of int [@@deriving show]
 (* | Byte of bytes
    | Int8 of int
    | Int16 of int
@@ -11,7 +11,7 @@ type typ = Bool of bool | String of string | Int32 of int
    | NVPair of t
    | NVPairArray of t list *)
 
-and t = string * typ
+and t = string * typ [@@deriving eq]
 
 let typ_of_value nvpair dtype =
   match dtype with
@@ -30,10 +30,5 @@ let t_of_nvpair_t (nvpair : M.nvpair_t) =
   let name = M.nvpair_name nvpair and dtype = M.nvpair_type nvpair in
   let typ : typ = typ_of_value nvpair dtype in
   (name, typ)
-
-let pp_typ ppf = function
-  | Bool b -> Fmt.pf ppf "%b" b
-  | String s -> Fmt.pf ppf "%s" s
-  | Int32 i -> Fmt.pf ppf "%i" i
 
 let pp ppf t = Fmt.pf ppf "(%s: %a)" (fst t) pp_typ (snd t)

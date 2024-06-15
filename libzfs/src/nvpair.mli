@@ -10,7 +10,7 @@ type typ = Bool of bool | String of string | Int32 of int
    | NVPair of t
    | NVPairArray of t list *)
 
-and t = string * typ
+and t = string * typ [@@deriving eq]
 
 val t_of_nvpair_t : M.nvpair_t -> t
 val pp : t Fmt.t

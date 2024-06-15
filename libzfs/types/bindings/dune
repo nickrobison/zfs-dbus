@@ -2,4 +2,4 @@
  (name libzfs_bindings_types)
  (public_name libzfs.bindings.types)
  (wrapped false)
- (libraries ctypes.stubs ctypes ctypes.foreign))
+ (libraries ctypes.stubs ctypes))

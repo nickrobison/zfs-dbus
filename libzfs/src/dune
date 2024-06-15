@@ -1,4 +1,6 @@
 (library
  (name libzfs)
  (public_name libzfs)
- (libraries libzfs.ffi ctypes fmt))
+ (libraries libzfs.ffi ctypes fmt)
+ (preprocess
+  (pps ppx_deriving.eq ppx_deriving.show)))
