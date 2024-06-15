@@ -1,3 +1,5 @@
+module M = Libzfs_ffi.M
+
 type typ = Bool of bool | String of string | Int32 of int
 (* | Byte of bytes
    | Int8 of int
@@ -9,3 +11,5 @@ type typ = Bool of bool | String of string | Int32 of int
    | NVPairArray of t list *)
 
 and t = string * typ
+
+val t_of_nvpair_t: M.nvpair_t -> t

@@ -34,8 +34,8 @@ let marshalling_test () =
   let pairs = nvpairs_of_simple_record r in
   Alcotest.(check int)
     "Should have the correct number of pairs" 3 (List.length pairs);
-  let _ = Nvlist.encode pairs in
-  ()
+  let nvlist = Nvlist.encode pairs in
+  Alcotest.(check (list string)) "Should have correct keys" ["favorite"; "age"; "name"] (Nvlist.keys nvlist)
 
 let v =
   let open Alcotest in

@@ -62,3 +62,21 @@ let encode_nvpair nvlist key (nvp_value : Nvpair.typ) =
 let encode pairs =
   let ls = empty () in
   List.fold_left (fun vlist (k, v) -> encode_nvpair vlist k v) ls pairs
+
+let iter_pairs t fn = 
+  let nvp_a = (addr (F.make_nvpair ())) in
+  let nvp = ref nvp_a  in
+  nvp := F.nvlist_next t (from_voidp F.nvpair_t null) ;
+  let rec iter t acc = 
+    if (Ctypes.is_null !nvp) then acc else (
+      let n = !nvp in
+      let vv = fn(n) in
+      let acc = vv :: acc in
+      nvp := F.nvlist_next t !nvp;
+      iter t acc
+    )
+    in
+    iter t []
+
+let keys t = 
+  iter_pairs t (fun nvpair -> F.nvpair_name nvpair)

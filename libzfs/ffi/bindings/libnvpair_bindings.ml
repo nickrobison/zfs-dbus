@@ -47,4 +47,18 @@ module M (F : Ctypes.FOREIGN) = struct
   let nvlist_lookup_int =
     foreign "nvlist_lookup_int32"
       (ptr T.nvlist_t @-> string @-> ptr int @-> returning int)
+
+    let nvlist_next = foreign "nvlist_next_nvpair" (ptr T.nvlist_t @-> ptr T.nvpair_t @-> returning (ptr T.nvpair_t))
+
+      (* NVpair functions *)
+
+      let nvpair_name = foreign "nvpair_name" (ptr T.nvpair_t @-> returning string)
+      let nvpair_type = foreign "nvpair_type" (ptr T.nvpair_t @-> returning T.data_type_t)
+
+      let nvpair_string = foreign "nvpair_value_string" (ptr T.nvpair_t @-> ptr string @-> returning int)
+      let nvpair_bool_value = foreign "nvpair_value_boolean_value" (ptr T.nvpair_t @-> ptr bool @-> returning int)
+
+      let nvpair_int = foreign "nvpair_value_int32" (ptr T.nvpair_t @-> ptr int @-> returning int)
+
+      
 end
