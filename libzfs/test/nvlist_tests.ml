@@ -1,7 +1,7 @@
 open Libzfs
 
 type simple_record = { name : string; age : int; favorite : string option }
-[@@deriving show, eq]
+[@@deriving show, eq, qcheck2]
 
 let record_testable = Alcotest.testable pp_simple_record equal_simple_record
 let missing_field f = raise (Invalid_argument ("Cannot find field: " ^ f))
@@ -49,7 +49,7 @@ let nvlist_test () =
     "Should have string value" (Some "")
     (Nvlist.get_string l "test_string")
 
-let marshalling_test () =
+let simple_record_test () =
   let r : simple_record =
     { name = "Test1"; age = 42; favorite = Some "icecream" }
   in
@@ -67,10 +67,20 @@ let marshalling_test () =
   let r' = Nvlist.pairs_of_t nvlist |> simple_record_of_pairs in
   Alcotest.(check record_testable) "Should be the same" r r'
 
+let record_marshall_test =
+  QCheck2.Test.make ~name:"Record marshall" gen_simple_record (fun r ->
+      let r' =
+        nvpairs_of_simple_record r |> Nvlist.t_of_pairs |> Nvlist.pairs_of_t
+        |> simple_record_of_pairs
+      in
+      equal_simple_record r r')
+
 let v =
   let open Alcotest in
+  let to_alcotest = QCheck_alcotest.to_alcotest in
   ( "NVList tests",
     [
       test_case "Simple NVList operations" `Quick nvlist_test;
-      test_case "Simple record tests" `Quick marshalling_test;
+      test_case "Simple record tests" `Quick simple_record_test;
+      to_alcotest record_marshall_test;
     ] )
