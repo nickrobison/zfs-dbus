@@ -1,12 +1,34 @@
 open Libzfs
 
 type simple_record = { name : string; age : int; favorite : string option }
+[@@deriving show, eq]
+
+let record_testable = Alcotest.testable pp_simple_record equal_simple_record
+let missing_field f = raise (Invalid_argument ("Cannot find field: " ^ f))
 
 let nvpairs_of_simple_record r =
   let open Nvpair in
   [ ("name", String r.name); ("age", Int32 r.age) ]
   @ Option.fold ~none:[] ~some:(fun f -> [ ("favorite", String f) ]) r.favorite
-(* let simple_record_of_nvlist l = () *)
+
+let simple_record_of_pairs (pairs : Nvpair.t list) =
+  let name =
+    match List.find (fun p -> fst p = "name") pairs with
+    | _, String s -> s
+    | _ -> missing_field "name"
+  in
+  let age =
+    match List.find (fun p -> fst p = "age") pairs with
+    | _, Int32 i -> i
+    | _ -> missing_field "age"
+  in
+  let favorite =
+    match List.find_opt (fun p -> fst p = "favorite") pairs with
+    | Some (_, String s) -> Some s
+    | None -> None
+    | _ -> missing_field "favorite"
+  in
+  { name; age; favorite }
 
 let nvlist_test () =
   let l = Nvlist.empty () in
@@ -34,8 +56,16 @@ let marshalling_test () =
   let pairs = nvpairs_of_simple_record r in
   Alcotest.(check int)
     "Should have the correct number of pairs" 3 (List.length pairs);
-  let nvlist = Nvlist.encode pairs in
-  Alcotest.(check (list string)) "Should have correct keys" ["favorite"; "age"; "name"] (Nvlist.keys nvlist)
+  let nvlist = Nvlist.t_of_pairs pairs in
+  Alcotest.(check (list string))
+    "Should have correct keys"
+    [ "favorite"; "age"; "name" ]
+    (Nvlist.keys nvlist);
+  Alcotest.(check int)
+    "Should have correct number of pairs" 3
+    (List.length (Nvlist.pairs_of_t nvlist));
+  let r' = Nvlist.pairs_of_t nvlist |> simple_record_of_pairs in
+  Alcotest.(check record_testable) "Should be the same" r r'
 
 let v =
   let open Alcotest in

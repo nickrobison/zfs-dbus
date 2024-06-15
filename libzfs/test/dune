@@ -1,3 +1,5 @@
 (test
  (name tests)
- (libraries libzfs alcotest))
+ (libraries libzfs alcotest)
+ (preprocess
+  (pps ppx_deriving.show ppx_deriving.eq)))
