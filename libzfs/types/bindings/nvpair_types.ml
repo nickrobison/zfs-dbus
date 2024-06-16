@@ -61,6 +61,38 @@ module M (F : Ctypes.TYPE) = struct
     | `Double
     | `E of string ]
 
+  let show_data_type_t = function
+    | `Dont_care -> "Don't care"
+    | `Unknown -> "Unknown"
+    | `Bool -> "Bool"
+    | `Byte -> "Byte"
+    | `Int16 -> "Int16"
+    | `Uint16 -> "Uint16"
+    | `Int32 -> "Int32"
+    | `Uint32 -> "Uint32"
+    | `Int64 -> "Int64"
+    | `Uint64 -> "Uint64"
+    | `String -> "String"
+    | `Byte_array -> "Byte array"
+    | `Int16_array -> "Int16 array"
+    | `Uint16_array -> "Uint16 array"
+    | `Int32_array -> "Int32 array"
+    | `Uint32_array -> "Uint32 array"
+    | `Int64_array -> "Int64 array"
+    | `Uint64_array -> "Uint64 array"
+    | `String_array -> "String array"
+    | `Hrtime -> "HRtime"
+    | `NVList -> "NVList"
+    | `NVList_array -> "NVList array"
+    | `Bool_value -> "Bool (value)"
+    | `Int8 -> "Int8"
+    | `Uint8 -> "Uint8"
+    | `Bool_array -> "Bool array"
+    | `Int8_array -> "Int8 array"
+    | `Uint8_array -> "Uint8 array"
+    | `Double -> "Double"
+    | `E s -> s
+
   let data_type_t : data_type_t typ =
     mk_enum "DATA_TYPE_" "data_type_t"
       [

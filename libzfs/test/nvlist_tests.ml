@@ -1,4 +1,5 @@
 open Libzfs
+open NVPair
 
 let printable_gen = QCheck2.Gen.(option string_printable)
 let age_gen = QCheck2.Gen.(0 -- 1)
@@ -15,11 +16,11 @@ let record_testable = Alcotest.testable pp_simple_record equal_simple_record
 let missing_field f = raise (Invalid_argument ("Cannot find field: " ^ f))
 
 let nvpairs_of_simple_record r =
-  let open NV.NVP in
+  let open NVPair in
   [ ("name", String r.name); ("age", Int32 r.age) ]
   @ Option.fold ~none:[] ~some:(fun f -> [ ("favorite", String f) ]) r.favorite
 
-let simple_record_of_pairs (pairs : NV.NVP.t list) =
+let simple_record_of_pairs (pairs : NVPair.t list) =
   let name =
     match List.find (fun p -> fst p = "name") pairs with
     | _, String s -> s
@@ -38,24 +39,24 @@ let simple_record_of_pairs (pairs : NV.NVP.t list) =
   in
   { name; age; favorite }
 
-let nvlist_test () =
-  let l = Nvlist.empty () in
-  Alcotest.(check int) "Should be empty" 16 (Nvlist.size l);
-  let _ = Nvlist.add_bool l "test_bool" false in
+let nvlist_tests () =
+  let l = NVlist.empty () in
+  Alcotest.(check int) "Should be empty" 0 (NVlist.size l);
+  let l' = NVlist.add_bool l "test_bool" false in
   Alcotest.(check (option bool))
     "Should have false value" (Some false)
-    (Nvlist.get_bool l "test_bool");
+    (NVlist.get_bool l' "test_bool");
   Alcotest.(check (option string))
     "Should not have string value" None
-    (Nvlist.get_string l "test_string");
-  let _ = Nvlist.add_string l "test_string" "This is not a drill" in
+    (NVlist.get_string l' "test_string");
+  let l' = NVlist.add_string l' "test_string" "This is not a drill" in
   Alcotest.(check (option string))
     "Should have string value" (Some "This is not a drill")
-    (Nvlist.get_string l "test_string");
-  let _ = Nvlist.add_string l "test_string" "" in
+    (NVlist.get_string l' "test_string");
+  let l' = NVlist.add_string l' "test_string" "" in
   Alcotest.(check (option string))
     "Should have string value" (Some "")
-    (Nvlist.get_string l "test_string")
+    (NVlist.get_string l' "test_string")
 
 let simple_record_test () =
   let r : simple_record =
@@ -64,22 +65,22 @@ let simple_record_test () =
   let pairs = nvpairs_of_simple_record r in
   Alcotest.(check int)
     "Should have the correct number of pairs" 3 (List.length pairs);
-  let nvlist = NV.NVL.t_of_pairs pairs in
+  let nvlist = NVlist.of_pairs pairs in
   Alcotest.(check (list string))
     "Should have correct keys"
-    [ "favorite"; "age"; "name" ]
-    (NV.NVL.keys nvlist);
+    [ "age"; "favorite"; "name" ]
+    (NVlist.keys nvlist);
   Alcotest.(check int)
     "Should have correct number of pairs" 3
-    (List.length (NV.NVL.pairs_of_t nvlist));
-  let r' = NV.NVL.pairs_of_t nvlist |> simple_record_of_pairs in
+    (List.length (NVlist.pairs nvlist));
+  let r' = NVlist.pairs nvlist |> simple_record_of_pairs in
   Alcotest.(check record_testable) "Should be the same" r r'
 
 let record_marshall_test =
   QCheck2.Test.make ~name:"Record marshall" ~print:show_simple_record
     gen_simple_record (fun r ->
       let r' =
-        nvpairs_of_simple_record r |> Nvlist.t_of_pairs |> Nvlist.pairs_of_t
+        nvpairs_of_simple_record r |> NVlist.of_pairs |> NVlist.pairs
         |> simple_record_of_pairs
       in
       equal_simple_record r r')
@@ -87,9 +88,9 @@ let record_marshall_test =
 let v =
   let open Alcotest in
   let to_alcotest = QCheck_alcotest.to_alcotest in
-  ( "NVList tests",
+  ( "NVlist tests",
     [
-      test_case "Simple NVList operations" `Quick nvlist_test;
+      test_case "Simple NVlist operations" `Quick nvlist_tests;
       test_case "Simple record tests" `Quick simple_record_test;
       to_alcotest record_marshall_test;
     ] )

@@ -45,4 +45,5 @@ module M (F : Ctypes.TYPE) : sig
     | `E of string ]
 
   val data_type_t : data_type_t F.typ
+  val show_data_type_t : data_type_t -> string
 end
