@@ -13,3 +13,9 @@ let destroy t ?(force = false) () =
   match M.zfs_destroy t.handle force with
   | 0 -> ()
   | _ -> raise (Invalid_argument "Bad")
+
+let dump_properties _t = []
+(* let pairs =
+     M.zfs_all_properties t.handle |> Nvlist.t_of_nvlist_t |> Nvlist.pairs_of_t
+   in
+   List.map Nvpair.assoc pairs *)

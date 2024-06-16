@@ -79,4 +79,7 @@ module M (F : Ctypes.FOREIGN) = struct
 
   let zfs_destroy =
     foreign "zfs_destroy" C.(Zfs_handle.t @-> bool @-> returning int)
+
+  let zfs_all_properties =
+    foreign "zfs_get_all_props" C.(Zfs_handle.t @-> returning (ptr nvlist_t))
 end

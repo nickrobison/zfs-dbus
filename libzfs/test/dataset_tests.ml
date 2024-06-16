@@ -2,6 +2,11 @@ open Libzfs
 
 let zfs = Zfs.init ()
 
+let open_dataset name =
+  match Zfs.get_dataset zfs name with
+  | Ok d -> d
+  | Error e -> Alcotest.fail (Zfs_exception.show e)
+
 let create_no_pool () =
   (* Create outside of pools *)
   let ds = Zfs.create_dataset zfs ~name:"nothing/testit" |> Result.get_error in
@@ -34,6 +39,11 @@ let simple_create () =
     "Should have correct name" "tank/test123" (Dataset.name ds);
   Dataset.destroy ds ()
 
+let get_properties () =
+  let ds = open_dataset "tiny/media/audio" in
+  let props = Dataset.dump_properties ds in
+  Alcotest.(check (list (pair string string))) "Should have properties" [] props
+
 let v =
   let open Alcotest in
   ( "Dataset tests",
@@ -41,4 +51,5 @@ let v =
       test_case "Dataset createion without pool" `Quick create_no_pool;
       test_case "Dataset creation without ancestor" `Quick create_no_ancestor;
       test_case "Dataset creation" `Quick simple_create;
+      test_case "Dataset properties" `Quick get_properties;
     ] )

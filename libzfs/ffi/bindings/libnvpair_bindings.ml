@@ -69,4 +69,8 @@ module M (F : Ctypes.FOREIGN) = struct
 
   let nvpair_int =
     foreign "nvpair_value_int32" (ptr T.nvpair_t @-> ptr int @-> returning int)
+
+  let nvpair_nvlist =
+    foreign "nvpair_value_nvlist"
+      (ptr T.nvpair_t @-> ptr (ptr T.nvlist_t) @-> returning int)
 end

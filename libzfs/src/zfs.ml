@@ -13,6 +13,18 @@ let init () =
   Gc.finalise (fun v -> M.libfzs_close v) handle;
   handle
 
+let last_error t =
+  let code = M.zfs_errno t in
+  let ii = M.zfs_error_init code in
+  let action = M.zfs_error_action t in
+  let description = M.zfs_error_description t in
+  print_endline ii;
+  Zfs_exception.create code description action |> Option.some
+
+let handle_err t p f =
+  let err = if is_null p then last_error t else None in
+  match err with Some e -> Error e | None -> Ok (f p)
+
 let pools t =
   let pool_ref = ref [] in
   let handler pool _ =
@@ -26,7 +38,11 @@ let pools t =
 
 let get_pool t name =
   let pool_handle = M.zpool_open t name in
-  Zpool.of_handle t pool_handle
+  Some (Zpool.of_handle t pool_handle)
+
+let get_dataset t name =
+  let handle = M.zfs_open t name 1 in
+  handle_err t handle Dataset.of_handle
 
 let datasets t =
   let handler _h _ =
@@ -36,14 +52,6 @@ let datasets t =
   let u = allocate int 1 in
   let _d = M.zfs_iter_root t handler (to_voidp u) in
   []
-
-let last_error t =
-  let code = M.zfs_errno t in
-  let ii = M.zfs_error_init code in
-  let action = M.zfs_error_action t in
-  let description = M.zfs_error_description t in
-  print_endline ii;
-  Zfs_exception.create code description action |> Option.some
 
 let create_dataset t ~name =
   let fs_int = M.int_of_dataset_type FILESYSTEM in

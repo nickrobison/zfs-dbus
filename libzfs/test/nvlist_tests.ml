@@ -15,11 +15,11 @@ let record_testable = Alcotest.testable pp_simple_record equal_simple_record
 let missing_field f = raise (Invalid_argument ("Cannot find field: " ^ f))
 
 let nvpairs_of_simple_record r =
-  let open Nvpair in
+  let open NV.NVP in
   [ ("name", String r.name); ("age", Int32 r.age) ]
   @ Option.fold ~none:[] ~some:(fun f -> [ ("favorite", String f) ]) r.favorite
 
-let simple_record_of_pairs (pairs : Nvpair.t list) =
+let simple_record_of_pairs (pairs : NV.NVP.t list) =
   let name =
     match List.find (fun p -> fst p = "name") pairs with
     | _, String s -> s
@@ -64,15 +64,15 @@ let simple_record_test () =
   let pairs = nvpairs_of_simple_record r in
   Alcotest.(check int)
     "Should have the correct number of pairs" 3 (List.length pairs);
-  let nvlist = Nvlist.t_of_pairs pairs in
+  let nvlist = NV.NVL.t_of_pairs pairs in
   Alcotest.(check (list string))
     "Should have correct keys"
     [ "favorite"; "age"; "name" ]
-    (Nvlist.keys nvlist);
+    (NV.NVL.keys nvlist);
   Alcotest.(check int)
     "Should have correct number of pairs" 3
-    (List.length (Nvlist.pairs_of_t nvlist));
-  let r' = Nvlist.pairs_of_t nvlist |> simple_record_of_pairs in
+    (List.length (NV.NVL.pairs_of_t nvlist));
+  let r' = NV.NVL.pairs_of_t nvlist |> simple_record_of_pairs in
   Alcotest.(check record_testable) "Should be the same" r r'
 
 let record_marshall_test =
