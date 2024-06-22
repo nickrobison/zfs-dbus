@@ -28,7 +28,7 @@ end = struct
     | String of string
     | Int32 of int
     | Nvlist of NVlist.t
-  [@@deriving show]
+  [@@deriving show, eq]
   (* | Byte of bytes
      | Int8 of int
      | Int16 of int
@@ -66,7 +66,7 @@ end = struct
     let typ : typ = typ_of_value nvpair dtype in
     (name, typ)
 
-  let pp ppf t = Fmt.pf ppf "(%s: %a)" (fst t) pp_typ (snd t)
+  let _pp ppf t = Fmt.pf ppf "(%s: %a)" (fst t) pp_typ (snd t)
 
   let assoc t =
     let k = fst t in
@@ -128,7 +128,7 @@ end = struct
     |> Option.join
 
   let get_nvpair k t = M.find_opt t k |> Option.map (fun v -> (t, v))
-  let of_pairs pairs = M.of_list pairs
+  let of_pairs pairs = List.to_seq pairs |> M.of_seq
 
   let iter_pairs t fn =
     let nvp_a = addr (F.make_nvpair ()) in
