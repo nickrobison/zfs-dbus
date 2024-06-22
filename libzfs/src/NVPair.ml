@@ -7,7 +7,9 @@ module rec NVPair : sig
     | Bool of bool
     | String of string
     | Int32 of int
+    | Uint64 of Int64.t
     | Nvlist of NVlist.t
+  [@@deriving show, eq]
   (* | Byte of bytes
      | Int8 of int
      | Int16 of int
@@ -17,18 +19,18 @@ module rec NVPair : sig
      | NVPair of t
      | NVPairArray of t list *)
 
-  and t = string * typ [@@deriving eq]
+  and t = string * typ [@@deriving show, eq]
 
   val t_of_nvpair_t : F.nvpair_t -> t
-  val pp : t Fmt.t
   val assoc : t -> string * string
 end = struct
   type typ =
     | Bool of bool
     | String of string
     | Int32 of int
+    | Uint64 of Int64.t
     | Nvlist of NVlist.t
-  [@@deriving show, eq]
+  [@@deriving eq]
   (* | Byte of bytes
      | Int8 of int
      | Int16 of int
@@ -46,6 +48,7 @@ end = struct
          (Format.sprintf "Unsupported type: %s" (F.show_data_type_t d)))
 
   let typ_of_value nvpair dtype =
+    Format.printf "%s: %s\n" (F.nvpair_name nvpair) (F.show_data_type_t dtype);
     let open C in
     match dtype with
     | `String ->
@@ -56,8 +59,12 @@ end = struct
         let i = allocate int 0 in
         let _ = F.nvpair_int nvpair i in
         Int32 !@i
-        (* | `NVList l ->
-           let l = allocate M.nvlist_t (from_voidp null) in *)
+    | `Uint64 ->
+        let _ = F.fnvpair_uint64 nvpair in
+        Uint64 Int64.one
+    | `NVList ->
+        let nvl = F.fnvpair_nvlist nvpair in
+        Nvlist (NVlist.decode nvl)
     | _ -> unsupported_type dtype
 
   let t_of_nvpair_t (nvpair : F.nvpair_t) =
@@ -66,7 +73,19 @@ end = struct
     let typ : typ = typ_of_value nvpair dtype in
     (name, typ)
 
-  let _pp ppf t = Fmt.pf ppf "(%s: %a)" (fst t) pp_typ (snd t)
+  let pp_typ ppf (dtype : typ) =
+    match dtype with
+    | String s -> Fmt.string ppf s
+    | Int32 i -> Fmt.int ppf i
+    | Bool b -> Fmt.bool ppf b
+    | Nvlist l ->
+        print_endline "Printing NVLIST";
+        NVlist.pp ppf l
+    | Uint64 l -> Fmt.int64 ppf l
+
+  let show_typ dtype = Fmt.to_to_string pp_typ dtype
+  let pp ppf t = Fmt.pf ppf "(%s: %a)" (fst t) pp_typ (snd t)
+  let show t = Fmt.to_to_string pp t
 
   let assoc t =
     let k = fst t in
@@ -131,31 +150,31 @@ end = struct
   let of_pairs pairs = List.to_seq pairs |> M.of_seq
 
   let iter_pairs t fn =
-    let nvp_a = addr (F.make_nvpair ()) in
-    let nvp = ref nvp_a in
-    nvp := F.nvlist_next t (from_voidp F.nvpair_t null);
-    let rec iter t acc =
-      if Ctypes.is_null !nvp then acc
+    (* let nvp_a = addr (F.make_nvpair ()) in *)
+    let rec iter p acc =
+      Format.printf "Is null? %b\n" (Ctypes.is_null p);
+      if Ctypes.is_null p then acc
       else
-        let n = !nvp in
-        let vv = fn n in
+        let vv = fn p in
         let acc = vv :: acc in
-        nvp := F.nvlist_next t !nvp;
-        iter t acc
+        print_endline "I have a pair";
+        iter (F.nvlist_next t p) acc
     in
-    iter t []
+    iter (F.nvlist_next t (from_voidp F.nvpair_t null)) []
 
   let keys t = M.bindings t |> List.map fst
   let pairs t = M.bindings t
 
   let decode nvlist =
+    print_endline "decoding";
     let pairs =
       iter_pairs nvlist (fun nvpair -> NVPair.t_of_nvpair_t !@nvpair)
     in
+    Format.printf "Have %i pairs\n" (List.length pairs);
     List.fold_left (fun m p -> M.add (fst p) (snd p) m) M.empty pairs
 
   let encode _ = raise (Unsupported "bad")
   let equal l r = M.equal NVPair.equal_typ l r
   let pp ppf t = Fmt.pf ppf "%a" (Fmt.list NVPair.pp) (M.bindings t)
-  let show _t = ""
+  let show t = Fmt.to_to_string pp t
 end

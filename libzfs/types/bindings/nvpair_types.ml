@@ -14,12 +14,16 @@ let _ = C.field nvpair_t "nvp_reserve" C.int16_t
 let () = C.seal nvpair_t
 let make_nvpair () = C.make nvpair_t
 
+type nvlist
+type nvlist_t = nvlist C.structure
+
+let nvlist_t = C.structure "nvlist"
+let make_nvlist () = C.make nvlist_t
+let nvlist_t = C.structure "nvlist"
+
 module M (F : Ctypes.TYPE) = struct
   open F
 
-  type nvlist_t = unit
-
-  let nvlist_t = void
   let unique_name = constant "NV_UNIQUE_NAME" int
 
   let mk_enum prefix typedef vals =

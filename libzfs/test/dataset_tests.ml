@@ -36,13 +36,14 @@ let create_no_ancestor () =
     "Should fail due to missing ancestor" (Error missing_ancestor) ds
 
 let simple_create () =
-  let ds = Zfs.create_dataset zfs ~name:"tank/test123" in
-  let name = Result.map Dataset.name ds in
-  Alcotest.(check T.string_result) "Should have correct name" (Ok "") name;
+  let name = "tank/test123" in
+  let ds = Zfs.create_dataset zfs ~name in
+  let res = Result.map Dataset.name ds in
+  Alcotest.(check T.string_result) "Should have correct name" (Ok name) res;
   maybe_cleanup ds
 
 let get_properties () =
-  let ds = open_dataset "tiny/media/audio" in
+  let ds = open_dataset "tank/media/music" in
   let props = Dataset.dump_properties ds in
   Alcotest.(check (list (pair string string))) "Should have properties" [] props
 

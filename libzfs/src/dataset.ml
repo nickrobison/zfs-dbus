@@ -14,8 +14,11 @@ let destroy t ?(force = false) () =
   | 0 -> ()
   | _ -> raise (Invalid_argument "Bad")
 
-let dump_properties _t = []
-(* let pairs =
-     M.zfs_all_properties t.handle |> Nvlist.t_of_nvlist_t |> Nvlist.pairs_of_t
-   in
-   List.map Nvpair.assoc pairs *)
+let dump_properties t =
+  let open NVPair in
+  let nvlist = M.zfs_all_properties t.handle |> NVlist.decode in
+  List.map
+    (fun p ->
+      let d = Fmt.to_to_string NVPair.pp_typ (snd p) in
+      (fst p, d))
+    (NVlist.pairs nvlist)

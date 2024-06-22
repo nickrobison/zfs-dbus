@@ -6,10 +6,13 @@ type nvpair_t = nvpair C.structure
 val nvpair_t : nvpair_t C.typ
 val make_nvpair : unit -> nvpair_t
 
-module M (F : Ctypes.TYPE) : sig
-  type nvlist_t
+type nvlist
+type nvlist_t = nvlist C.structure
 
-  val nvlist_t : nvlist_t F.typ
+val nvlist_t : nvlist_t C.typ
+val make_nvlist : unit -> nvlist_t
+
+module M (F : Ctypes.TYPE) : sig
   val unique_name : int F.const
 
   type data_type_t =
