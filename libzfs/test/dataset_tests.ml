@@ -45,7 +45,7 @@ let simple_create () =
 let get_properties () =
   let ds = open_dataset "tank/media/music" in
   let props = Dataset.dump_properties ds in
-  Alcotest.(check (list (pair string string))) "Should have properties" [] props
+  Alcotest.(check int) "Should have properties" 28 (List.length props)
 
 let v =
   let open Alcotest in
