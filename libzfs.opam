@@ -13,6 +13,7 @@ depends: [
   "ctypes"
   "ctypes-foreign"
   "integers"
+  "hmap"
   "ppx_deriving"
   "alcotest-lwt" {with-test}
   "qcheck-core" {with-test}
