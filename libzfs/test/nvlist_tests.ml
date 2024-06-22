@@ -1,21 +1,12 @@
 open Libzfs
 open NVPair
+module T = Testables
+module G = Generators
 
-let printable_gen = QCheck2.Gen.(option string_printable)
-let age_gen = QCheck2.Gen.(0 -- 1)
-
-type simple_record = { name : string; age : int; favorite : string option }
-[@@deriving show, eq]
-
-let simple_record name age favorite = { name; age; favorite }
-
-let gen_simple_record =
-  QCheck2.Gen.(simple_record <$> string_printable <*> age_gen <*> printable_gen)
-
-let record_testable = Alcotest.testable pp_simple_record equal_simple_record
+(* let record_testable = Alcotest.testable pp_simple_record equal_simple_record *)
 let missing_field f = raise (Invalid_argument ("Cannot find field: " ^ f))
 
-let nvpairs_of_simple_record r =
+let nvpairs_of_simple_record (r : Simple_record.t) =
   let open NVPair in
   [ ("name", String r.name); ("age", Int32 r.age) ]
   @ Option.fold ~none:[] ~some:(fun f -> [ ("favorite", String f) ]) r.favorite
@@ -37,7 +28,7 @@ let simple_record_of_pairs (pairs : NVPair.t list) =
     | None -> None
     | _ -> missing_field "favorite"
   in
-  { name; age; favorite }
+  Simple_record.t name age favorite
 
 let nvlist_tests () =
   let l = NVlist.empty () in
@@ -59,7 +50,7 @@ let nvlist_tests () =
     (NVlist.get_string l' "test_string")
 
 let simple_record_test () =
-  let r : simple_record =
+  let r : Simple_record.t =
     { name = "Test1"; age = 42; favorite = Some "icecream" }
   in
   let pairs = nvpairs_of_simple_record r in
@@ -74,16 +65,16 @@ let simple_record_test () =
     "Should have correct number of pairs" 3
     (List.length (NVlist.pairs nvlist));
   let r' = NVlist.pairs nvlist |> simple_record_of_pairs in
-  Alcotest.(check record_testable) "Should be the same" r r'
+  Alcotest.(check T.simple_record) "Should be the same" r r'
 
 let record_marshall_test =
-  QCheck2.Test.make ~name:"Record marshall" ~print:show_simple_record
-    gen_simple_record (fun r ->
+  QCheck2.Test.make ~name:"Record marshall" ~print:Simple_record.show
+    G.simple_record (fun r ->
       let r' =
         nvpairs_of_simple_record r |> NVlist.of_pairs |> NVlist.pairs
         |> simple_record_of_pairs
       in
-      equal_simple_record r r')
+      Simple_record.equal r r')
 
 let v =
   let open Alcotest in

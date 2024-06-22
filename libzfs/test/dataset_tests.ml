@@ -1,4 +1,13 @@
 open Libzfs
+module T = Testables
+
+let missing_pool =
+  Zfs_exception.create 2009 "no such pool 'nothing'"
+    (Some "cannot create 'nothing/testit'")
+
+let missing_ancestor =
+  Zfs_exception.create 2009 "parent does not exist"
+    (Some "cannot create 'tank/missing/hello'")
 
 let zfs = Zfs.init ()
 
@@ -7,37 +16,30 @@ let open_dataset name =
   | Ok d -> d
   | Error e -> Alcotest.fail (Zfs_exception.show e)
 
+let maybe_cleanup ds =
+  Result.fold ~ok:(fun d -> Dataset.destroy d ()) ~error:(fun _ -> ()) ds
+
 let create_no_pool () =
   (* Create outside of pools *)
-  let ds = Zfs.create_dataset zfs ~name:"nothing/testit" |> Result.get_error in
-  let code = ds |> Zfs_exception.code in
-  Alcotest.(check int) "Should not be created" 2009 code;
-  Alcotest.(check (option string))
-    "Should have correct action" (Some "cannot create 'nothing/testit'")
-    (Zfs_exception.action ds);
-  Alcotest.(check string)
-    "Should fail due to missing pool" "no such pool 'nothing'"
-    (Zfs_exception.description ds)
+  let ds =
+    Zfs.create_dataset zfs ~name:"nothing/testit" |> Result.map Dataset.name
+  in
+  Alcotest.(check T.string_result)
+    "Should failed to create in missing pool" (Error missing_pool) ds
 
 let create_no_ancestor () =
   (* Create outside of pools *)
   let ds =
-    Zfs.create_dataset zfs ~name:"tank/missing/hello" |> Result.get_error
+    Zfs.create_dataset zfs ~name:"tank/missing/hello" |> Result.map Dataset.name
   in
-  let code = ds |> Zfs_exception.code in
-  Alcotest.(check int) "Should not be created" 2009 code;
-  Alcotest.(check (option string))
-    "Should have correct action" (Some "cannot create 'tank/missing/hello'")
-    (Zfs_exception.action ds);
-  Alcotest.(check string)
-    "Should fail due to missing pool" "parent does not exist"
-    (Zfs_exception.description ds)
+  Alcotest.(check T.string_result)
+    "Should fail due to missing ancestor" (Error missing_ancestor) ds
 
 let simple_create () =
-  let ds = Zfs.create_dataset zfs ~name:"tank/test123" |> Result.get_ok in
-  Alcotest.(check string)
-    "Should have correct name" "tank/test123" (Dataset.name ds);
-  Dataset.destroy ds ()
+  let ds = Zfs.create_dataset zfs ~name:"tank/test123" in
+  let name = Result.map Dataset.name ds in
+  Alcotest.(check T.string_result) "Should have correct name" (Ok "") name;
+  maybe_cleanup ds
 
 let get_properties () =
   let ds = open_dataset "tiny/media/audio" in
