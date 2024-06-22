@@ -3,7 +3,6 @@ open NVPair
 module T = Testables
 module G = Generators
 
-(* let record_testable = Alcotest.testable pp_simple_record equal_simple_record *)
 let missing_field f = raise (Invalid_argument ("Cannot find field: " ^ f))
 
 let nvpairs_of_simple_record (r : Simple_record.t) =
