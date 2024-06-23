@@ -5,14 +5,6 @@ let string_key name =
 
 let int_key name = Property_key.create name Fmt.int |> Property_map.Key.create
 
-(* module StringKey = struct
-     let key = Property_key.create "strings"
-   end
-
-   module IntKey = struct
-     let key = Property_key.create "ints"
-   end *)
-
 let simple_tests () =
   let k1 = string_key "strings" in
   let k2 = int_key "ints" in
