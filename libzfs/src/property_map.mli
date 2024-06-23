@@ -1,4 +1,4 @@
-(** A property_map holds heterogeneous value and is passed to the requests or responses. *)
+(** A property_map holds heterogeneous property values for ZFS resources. *)
 
 (** {2:keys Keys} *)
 
@@ -10,7 +10,7 @@ type 'a key
 module Key : sig
   (** {2:keys Keys} *)
 
-  type 'a info = 'a
+  type 'a info = 'a Property_key.t
   (** The type for key information. *)
 
   (** {3 [create]} *)

@@ -1,3 +1,1 @@
-include Hmap.Make (struct
-  type 'a t = 'a
-end)
+include Hmap.Make (Property_key)
