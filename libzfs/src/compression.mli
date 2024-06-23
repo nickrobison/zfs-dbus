@@ -1,4 +1,4 @@
-type c =
+type t =
   | Inherit
   | On
   | Off
@@ -9,7 +9,7 @@ type c =
   | ZLE
   | LZ4
   | Function
+[@@deriving show, eq]
 
-val key : c Property_map.key
-
-(* module Key: Property_key.K with type 'a t = c *)
+val of_int : int -> t
+val key : t Property_map.key

@@ -45,13 +45,15 @@ let simple_create () =
 let get_properties () =
   let ds = open_dataset "tank/media/music" in
   let props = Dataset.dump_properties ds in
-  Alcotest.(check int) "Should have properties" 28 (List.length props)
+  Alcotest.(check int) "Should have properties" 28 (List.length props);
+  Alcotest.(check T.compression)
+    "Should not be compressed" Compression.Off (Dataset.compression ds)
 
 let v =
   let open Alcotest in
   ( "Dataset tests",
     [
-      test_case "Dataset createion without pool" `Quick create_no_pool;
+      test_case "Dataset creation without pool" `Quick create_no_pool;
       test_case "Dataset creation without ancestor" `Quick create_no_ancestor;
       test_case "Dataset creation" `Quick simple_create;
       test_case "Dataset properties" `Quick get_properties;
