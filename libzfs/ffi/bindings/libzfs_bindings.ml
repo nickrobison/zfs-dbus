@@ -75,7 +75,7 @@ module M (F : Ctypes.FOREIGN) = struct
   (* ZFS dataset functions *)
   let zfs_create =
     foreign "zfs_create"
-      C.(Libzfs_handle.t @-> string @-> int @-> ptr void @-> returning int)
+      C.(Libzfs_handle.t @-> string @-> int @-> ptr nvlist_t @-> returning int)
 
   let zfs_destroy =
     foreign "zfs_destroy" C.(Zfs_handle.t @-> bool @-> returning int)

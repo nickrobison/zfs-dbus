@@ -2,6 +2,34 @@ module M = Libzfs_ffi.M
 
 type t = { handle : M.Zfs_handle.t; name : string; props : Property_map.t }
 
+module Builder = struct
+  type t = {
+    name: string;
+    compression: Compression.t option;
+  }
+
+  let create name = {
+    name;
+    compression = None;
+  }
+
+  let name t = t.name
+
+  let id x = x
+  let compression t = Option.fold ~none:Compression.Off ~some:id t.compression
+
+  let with_compression c t = {t with compression = Some c}
+
+  let to_nvlist _t = 
+    let module L = NVPair.NVlist in
+    let l = L.empty () in 
+    L.add_nvpair l "compression" ("", (NVPair.NVPair.Uint64 (Unsigned.UInt64.of_int 4)))
+
+    
+
+end
+
+
 let name t = t.name
 
 let extract_key nvlist k pm =
@@ -31,6 +59,7 @@ let of_handle handle =
   let name = M.zfs_get_name handle in
   let props = build_properties handle in
   { handle; name; props }
+
 
 let destroy t ?(force = false) () =
   match M.zfs_destroy t.handle force with

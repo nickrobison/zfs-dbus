@@ -6,4 +6,4 @@ val pools : t -> Zpool.t list
 val get_pool : t -> string -> Zpool.t option
 val get_dataset : t -> string -> (Dataset.t, Zfs_exception.t) result
 val datasets : t -> Dataset.t list
-val create_dataset : t -> name:string -> (Dataset.t, Zfs_exception.t) result
+val create_dataset : Dataset.Builder.t -> t -> (Dataset.t, Zfs_exception.t) result

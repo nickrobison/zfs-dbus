@@ -53,9 +53,11 @@ let datasets t =
   let _d = M.zfs_iter_root t handler (to_voidp u) in
   []
 
-let create_dataset t ~name =
+let create_dataset builder t =
   let fs_int = M.int_of_dataset_type FILESYSTEM in
-  match M.zfs_create t name fs_int null with
+  let name = Dataset.Builder.name builder in
+  let l = Dataset.Builder.to_nvlist builder |> NVPair.NVlist.encode in
+  match M.zfs_create t name fs_int l with
   | 0 ->
       let handle = M.zfs_open t name fs_int in
       Ok (Dataset.of_handle handle)
