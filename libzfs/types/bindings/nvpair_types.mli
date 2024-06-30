@@ -1,17 +1,5 @@
 module C = Ctypes
 
-type nvpair
-type nvpair_t = nvpair C.structure
-
-val nvpair_t : nvpair_t C.typ
-val make_nvpair : unit -> nvpair_t
-
-type nvlist
-type nvlist_t = nvlist C.structure
-
-val nvlist_t : nvlist_t C.typ
-val make_nvlist : unit -> nvlist_t
-
 module M (F : Ctypes.TYPE) : sig
   val unique_name : int F.const
 
@@ -49,4 +37,14 @@ module M (F : Ctypes.TYPE) : sig
 
   val data_type_t : data_type_t F.typ
   val show_data_type_t : data_type_t -> string
+
+  type nvlist
+  type nvlist_t = nvlist C.structure
+
+  val nvlist_t : nvlist_t F.typ
+
+  type nvpair
+  type nvpair_t = nvpair C.structure
+
+  val nvpair_t : nvpair_t F.typ
 end

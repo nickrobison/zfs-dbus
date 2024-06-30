@@ -164,7 +164,7 @@ end = struct
     in
     List.fold_left (fun m p -> M.add (fst p) (snd p) m) M.empty pairs
 
-  let encode _ = raise (Unsupported "bad")
+  let encode _t = raise (Unsupported "bad")
   let equal l r = M.equal NVPair.equal_typ l r
   let pp ppf t = Fmt.pf ppf "%a" (Fmt.list NVPair.pp) (M.bindings t)
   let show t = Fmt.to_to_string pp t

@@ -1,26 +1,5 @@
 module C = Ctypes
 
-type nvpair
-type nvpair_t = nvpair C.structure
-
-let nvpair_t = C.structure "nvpair"
-let _ = C.field nvpair_t "nvp_size" C.int32_t
-let _ = C.field nvpair_t "nvp_name_sz" C.int16_t
-let _ = C.field nvpair_t "nvp_reserve" C.int16_t
-
-(* let _ = C.field nvpair_t "nvp_value_elem" C.int32_t *)
-(* let _ = C.field nvpair_t "nvp_type" C.int32_t *)
-(* let _ = C.field nvpair_t "nvp_name" C.char *)
-let () = C.seal nvpair_t
-let make_nvpair () = C.make nvpair_t
-
-type nvlist
-type nvlist_t = nvlist C.structure
-
-let nvlist_t = C.structure "nvlist"
-let make_nvlist () = C.make nvlist_t
-let nvlist_t = C.structure "nvlist"
-
 module M (F : Ctypes.TYPE) = struct
   open F
 
@@ -130,4 +109,29 @@ module M (F : Ctypes.TYPE) = struct
         (`Uint8_array, "UINT8_ARRAY");
         (`Double, "DOUBLE");
       ]
+
+  (* NVList *)
+  type nvlist
+  type nvlist_t = nvlist C.structure
+
+  let nvlist_t : nvlist C.structure typ = structure "nvlist"
+  let _ = field nvlist_t "nvl_version" int32_t
+  let _ = field nvlist_t "nvl_nvflag" uint32_t
+  let _ = field nvlist_t "nvl_priv" uint64_t
+  let _ = field nvlist_t "nvl_flag" uint32_t
+  let _ = field nvlist_t "nvl_pad" int32_t
+  let () = seal nvlist_t
+
+  (* NVPair *)
+
+  type nvpair
+  type nvpair_t = nvpair C.structure
+
+  let nvpair_t : nvpair C.structure typ = structure "nvpair"
+  let _ = field nvpair_t "nvp_size" int32_t
+  let _ = field nvpair_t "nvp_name_sz" int16_t
+  let _ = field nvpair_t "nvp_reserve" int16_t
+  let _ = field nvpair_t "nvp_type" data_type_t
+  let _ = field nvpair_t "nvp_name" char
+  let () = seal nvpair_t
 end
