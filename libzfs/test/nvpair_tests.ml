@@ -1,35 +1,43 @@
 open Libzfs
 open QCheck2
+open NVPair
 
-let gen_typ : Nvpair.typ Gen.t =
+let gen_typ : NVPair.typ Gen.t =
   let open Gen in
   frequency
     [
       (* (1, map (fun b -> Nvpair.Bool b) bool); *)
-      (1, map (fun i -> Nvpair.Int32 i) small_int);
-      (1, map (fun s -> Nvpair.String s) string_printable);
+      (1, map (fun i -> NVPair.Int32 i) small_int);
+      (1, map (fun s -> NVPair.String s) string_printable);
     ]
 
 let gen_name = Gen.(string_size ~gen:printable (1 -- 10))
-let gen_pair : Nvpair.t Gen.t = Gen.(pair gen_name gen_typ)
+let gen_pair : NVPair.t Gen.t = Gen.(pair gen_name gen_typ)
 let gen_pairs = Gen.list gen_pair
-let show_pairs p = Fmt.str "%a" (Fmt.list Nvpair.pp) p
+let show_pairs p = Fmt.str "%a" (Fmt.list NVPair.pp) p
 
 let dedup_list l =
   let cons e acc = if List.mem e acc then acc else e :: acc in
   List.fold_right cons l []
 
+let nvpair_roundtrip = 
+  let p: NVPair.t = ("test", NVPair.String "hello world") in
+  let p' = NVPair.encode p |> NVPair.decode in
+  Alcotest.(check )
+
 let nvpair_list_test =
   [
     Test.make ~name:"Arbitrary NVPair list" ~print:show_pairs gen_pairs
       (fun pairs ->
-        let p' = Nvlist.t_of_pairs pairs |> Nvlist.pairs_of_t in
+        let p' = NVlist.of_pairs pairs |> NVlist.pairs in
         let dedup = List.rev (dedup_list pairs) in
         print_endline ("P: " ^ show_pairs p');
         print_endline ("Dedup: " ^ show_pairs dedup);
-        List.equal Nvpair.equal dedup p');
+        List.equal NVPair.equal dedup p');
   ]
 
 let v =
-  let to_alcotest = List.map QCheck_alcotest.to_alcotest in
-  ("NVPair tests", to_alcotest nvpair_list_test)
+  (* let to_alcotest = List.map QCheck_alcotest.to_alcotest in *)
+  ("NVPair tests", [
+    test_case "Simple roundtrip" `Quick 
+  ])

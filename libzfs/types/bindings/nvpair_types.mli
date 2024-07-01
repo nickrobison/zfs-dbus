@@ -37,6 +37,7 @@ module M (F : Ctypes.TYPE) : sig
 
   val data_type_t : data_type_t F.typ
   val show_data_type_t : data_type_t -> string
+  val size_data_type_t : data_type_t -> int
 
   type nvlist
   type nvlist_t = nvlist C.structure
@@ -46,5 +47,14 @@ module M (F : Ctypes.TYPE) : sig
   type nvpair
   type nvpair_t = nvpair C.structure
 
-  val nvpair_t : nvpair_t F.typ
+  val name: nvpair_t -> string
+  val size: nvpair_t -> int
+  val set_name: string -> nvpair_t -> unit
+  val name_size: nvpair_t -> int
+  val elements: nvpair_t -> int
+  val set_elements: int -> nvpair_t -> unit
+  (* val dtype: nvpair_t -> data_type_t
+  val set_dtype: nvpair_t -> data_type_t -> nvpair_t *)
+
+  val nvpair_t : nvpair_t C.typ
 end

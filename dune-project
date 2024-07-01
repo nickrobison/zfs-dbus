@@ -27,4 +27,4 @@
 (package
   (name libzfs)
   (synopsis "ZFS bindings")
-  (depends ocaml dune ctypes ctypes-foreign integers hmap ppx_deriving (alcotest-lwt :with-test) (qcheck-core :with-test) (qcheck-alcotest :with-test) (ppx_deriving_qcheck :with-test)))
+  (depends ocaml dune ctypes ctypes-foreign integers hmap memcpy ppx_deriving (alcotest-lwt :with-test) (qcheck-core :with-test) (qcheck-alcotest :with-test) (ppx_deriving_qcheck :with-test)))
