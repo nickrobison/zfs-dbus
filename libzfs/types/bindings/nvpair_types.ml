@@ -5,11 +5,11 @@ module M (F : Ctypes.TYPE) = struct
 
   let unique_name = constant "NV_UNIQUE_NAME" int
 
-  let mk_enum prefix typedef vals =
-    enum ~typedef:true
+  let mk_enum prefix ?(typedef = true) name vals =
+    enum ~typedef
       ~unexpected:(fun i ->
         `E (Printf.sprintf "Unexpected enum code: %d" (Int64.to_int i)))
-      typedef
+      name
       (List.map (fun (a, b) -> (a, F.constant (prefix ^ b) F.int64_t)) vals)
 
   type data_type_t =
@@ -170,4 +170,48 @@ module M (F : Ctypes.TYPE) = struct
   let set_elements elems t =
     let elems = Int32.of_int elems in
     C.(setf t nvp_elements elems)
+
+  type zio_compress =
+    [ `Inherit
+    | `On
+    | `Off
+    | `Lzjb
+    | `Empty
+    | `Gzip_1
+    | `Gzip_2
+    | `Gzip_3
+    | `Gzip_4
+    | `Gzip_5
+    | `Gzip_6
+    | `Gzip_7
+    | `Gzip_8
+    | `Gzip_9
+    | `Zle
+    | `LZ4
+    | `Zstd
+    | `Function
+    | `E of string ]
+
+  let zio_compress : zio_compress typ =
+    mk_enum ~typedef:false "ZIO_COMPRESS_" "zio_compress"
+      [
+        (`Inherit, "INHERIT");
+        (`On, "ON");
+        (`Off, "OFF");
+        (`Lzjb, "LZJB");
+        (`Empty, "EMPTY");
+        (`Gzip_1, "GZIP_1");
+        (`Gzip_2, "GZIP_2");
+        (`Gzip_3, "GZIP_3");
+        (`Gzip_4, "GZIP_4");
+        (`Gzip_5, "GZIP_5");
+        (`Gzip_6, "GZIP_6");
+        (`Gzip_7, "GZIP_7");
+        (`Gzip_8, "GZIP_8");
+        (`Gzip_9, "GZIP_9");
+        (`Zle, "ZLE");
+        (`LZ4, "LZ4");
+        (`Zstd, "ZSTD");
+        (`Function, "FUNCTIONS");
+      ]
 end

@@ -11,11 +11,13 @@ module Builder = struct
   let compression t = Option.fold ~none:Compression.Off ~some:id t.compression
   let with_compression c t = { t with compression = Some c }
 
-  let to_nvlist _t =
+  let to_nvlist t =
     let module L = NVPair.NVlist in
     let l = L.empty () in
-    L.add_nvpair l "compression"
-      ("", NVPair.NVPair.Uint64 (Unsigned.UInt64.of_int 4))
+    let c = compression t in
+    let k = Property_map.Key.info Compression.key in
+    let pair = Property_key.to_nvpair c k in
+    L.add_nvpair l "compression" pair
 end
 
 let name t = t.name
@@ -48,10 +50,14 @@ let of_handle handle =
   let props = build_properties handle in
   { handle; name; props }
 
-let destroy t ?(force = false) () =
+let destroy ?(force = false) t =
   match M.zfs_destroy t.handle force with
-  | 0 -> ()
-  | _ -> raise (Invalid_argument "Bad")
+  | 0 -> Ok ()
+  | _ ->
+      let code = M.zfs_errno t.handle in
+      let action = M.zfs_error_action t.handle in
+      let description = M.zfs_error_description t.handle in
+      Zfs_exception.create code description action |> Result.error
 
 let dump_properties t =
   let open NVPair in

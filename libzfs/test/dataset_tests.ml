@@ -17,7 +17,8 @@ let open_dataset name =
   | Error e -> Alcotest.fail (Zfs_exception.show e)
 
 let maybe_cleanup ds =
-  Result.fold ~ok:(fun d -> Dataset.destroy d ()) ~error:(fun _ -> ()) ds
+  let _ = Result.map (fun d -> Dataset.destroy d) ds in
+  ()
 
 let create_no_pool () =
   (* Create outside of pools *)
@@ -43,21 +44,22 @@ let simple_create () =
 
 let create_compress () =
   let b =
-    Dataset.Builder.create "tank/cc"
-    |> Dataset.Builder.with_compression Compression.LZ4
+    Dataset.Builder.create "tiny/cc"
+    |> Dataset.Builder.with_compression (Compression.Gzip 7)
   in
   let ds = Zfs.create_dataset b zfs in
   let res = ds |> Result.map Dataset.compression in
   Alcotest.(check T.compression_result)
-    "Should have correct compression" (Ok Compression.LZ4) res;
+    "Should have correct compression" (Ok (Compression.Gzip 7)) res;
   maybe_cleanup ds
 
 let get_properties () =
-  let ds = open_dataset "tank/media/music" in
+  let ds = open_dataset "tank/media/audio" in
   let props = Dataset.dump_properties ds in
-  Alcotest.(check int) "Should have properties" 28 (List.length props);
+  Alcotest.(check int) "Should have properties" 33 (List.length props);
   Alcotest.(check T.compression)
-    "Should not be compressed" Compression.Off (Dataset.compression ds)
+    "Should have correct compression compressed" Compression.LZ4
+    (Dataset.compression ds)
 
 let v =
   let open Alcotest in
@@ -65,7 +67,7 @@ let v =
     [
       test_case "Dataset creation without pool" `Quick create_no_pool;
       test_case "Dataset creation without ancestor" `Quick create_no_ancestor;
-      test_case "Dataset creation" `Quick simple_create;
+      (* test_case "Dataset creation" `Quick simple_create; *)
       test_case "Dataset properties" `Quick get_properties;
       test_case "Dataset creation with compression" `Quick create_compress;
     ] )

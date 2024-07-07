@@ -16,7 +16,7 @@ type t
 
 val name : t -> string
 val of_handle : M.Zfs_handle.t -> t
-val destroy : t -> ?force:bool -> unit -> unit
+val destroy : ?force:bool -> t -> (unit, Zfs_exception.t) result
 val dump_properties : t -> (string * string) list
 
 (** {2:properties Properties} *)

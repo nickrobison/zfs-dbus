@@ -57,4 +57,27 @@ module M (F : Ctypes.TYPE) : sig
      val set_dtype: nvpair_t -> data_type_t -> nvpair_t *)
 
   val nvpair_t : nvpair_t C.typ
+
+  type zio_compress =
+    [ `Inherit
+    | `On
+    | `Off
+    | `Lzjb
+    | `Empty
+    | `Gzip_1
+    | `Gzip_2
+    | `Gzip_3
+    | `Gzip_4
+    | `Gzip_5
+    | `Gzip_6
+    | `Gzip_7
+    | `Gzip_8
+    | `Gzip_9
+    | `Zle
+    | `LZ4
+    | `Zstd
+    | `Function
+    | `E of string ]
+
+  val zio_compress : zio_compress F.typ
 end
