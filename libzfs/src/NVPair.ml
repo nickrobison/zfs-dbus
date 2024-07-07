@@ -22,9 +22,6 @@ module rec NVPair : sig
 
   and t = string * typ [@@deriving show, eq]
 
-  val encode: t -> F.nvpair_t C.ptr
-  val decode: F.nvpair_t -> t
-
   val t_of_nvpair_t : F.nvpair_t -> t
   val assoc : t -> string * string
 end = struct
@@ -68,47 +65,11 @@ end = struct
         Nvlist (NVlist.decode nvl)
     | _ -> unsupported_type dtype
 
-  let value_of_typ t = 
-    match (snd t) with 
-    | String _ -> `String
-    | Int32 _ -> `Int32
-    | Uint64 _ -> `Uint64
-    | Nvlist _ -> `NVList
-      | Bool _ -> `Bool
-
-
   let t_of_nvpair_t (nvpair : F.nvpair_t) =
     let nvpair = C.addr nvpair in
     let name = F.nvpair_name nvpair and dtype = F.nvpair_type nvpair in
     let typ : typ = typ_of_value nvpair dtype in
     (name, typ)
-
-  let decode nvpair = t_of_nvpair_t nvpair
-
-  let calculate_size t = 
-    let pair_sz = C.sizeof F.nvpair_t in
-    let dtype = value_of_typ t in
-    let data_sz = F.size_data_type_t dtype in
-    let name_len = String.length (fst t) in
-    pair_sz + (name_len + 1) + data_sz
-
-  let calculate_addr (nvpair: F.nvpair_t C.ptr) = 
-    let addr = C.(raw_address_of_ptr (to_voidp nvpair)) in
-    let pair_sz = C.sizeof F.nvpair_t in
-    let name_size = F.name_size (C.(!@)nvpair) in
-    let sizes = List.map Nativeint.of_int [pair_sz; name_size] |> List.fold_left Nativeint.add Nativeint.zero in
-    Nativeint.add addr sizes
-
-  let encode t = 
-    let open C in
-    let size = calculate_size t in
-    let nvpair = allocate_n (abstract ~name:"" ~size ~alignment:1) ~count:1 |> to_voidp |> from_voidp F.nvpair_t in
-    F.set_name (fst t) !@nvpair;
-    (** Fix me: This is never going to work*)
-    let value_addr = calculate_addr nvpair |> ptr_of_raw_address in
-    let data  = CArray.of_string "hello" in
-    Memcpy.unsafe_memcpy Memcpy.carray Memcpy.pointer ~src:data ~dst:value_addr ~len:100 ~src_off:0 ~dst_off:0;
-    nvpair
 
   let pp_typ ppf (dtype : typ) =
     match dtype with
@@ -203,7 +164,25 @@ end = struct
     in
     List.fold_left (fun m p -> M.add (fst p) (snd p) m) M.empty pairs
 
-  let encode _t = raise (Unsupported "bad")
+  let rec encode_pair nvl (pair : NVPair.t) =
+    let name, dtype = pair in
+    match dtype with
+    | Bool b -> F.fnvlist_add_bool nvl name b
+    | String s -> F.fnvlist_add_string nvl name s
+    | Int32 i -> F.fnvlist_add_int32 nvl name (Int32.of_int i)
+    | Uint64 i -> F.fnvlist_add_uint64 nvl name i
+    | Nvlist l ->
+        let pairs = NVlist.pairs l in
+        F.fnvlist_add_nvlist nvl name (encode_nvlist pairs)
+
+  and encode_nvlist pairs =
+    let nvlist = allocate_n F.(ptr nvlist_t) ~count:1 in
+    let _ = F.nvlist_alloc nvlist F.unique_name 0 in
+    let encode_pair = encode_pair !@nvlist in
+    List.iter encode_pair pairs;
+    !@nvlist
+
+  let encode t = encode_nvlist (pairs t)
   let equal l r = M.equal NVPair.equal_typ l r
   let pp ppf t = Fmt.pf ppf "%a" (Fmt.list NVPair.pp) (M.bindings t)
   let show t = Fmt.to_to_string pp t

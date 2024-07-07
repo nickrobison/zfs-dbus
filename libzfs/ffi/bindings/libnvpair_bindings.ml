@@ -80,4 +80,26 @@ module M (F : Ctypes.FOREIGN) = struct
 
   let fnvpair_uint64 =
     foreign "fnvpair_value_uint64" (ptr T.nvpair_t @-> returning uint64_t)
+
+  (* FNVList functions *)
+
+  let fnvlist_add_bool =
+    foreign "fnvlist_add_boolean_value"
+      (ptr T.nvlist_t @-> string @-> bool @-> returning void)
+
+  let fnvlist_add_string =
+    foreign "fnvlist_add_string"
+      (ptr T.nvlist_t @-> string @-> string @-> returning void)
+
+  let fnvlist_add_int32 =
+    foreign "fnvlist_add_int32"
+      (ptr T.nvlist_t @-> string @-> int32_t @-> returning void)
+
+  let fnvlist_add_uint64 =
+    foreign "fnvlist_add_uint64"
+      (ptr T.nvlist_t @-> string @-> uint64_t @-> returning void)
+
+  let fnvlist_add_nvlist =
+    foreign "fnvlist_add_nvlist"
+      (ptr T.nvlist_t @-> string @-> ptr T.nvlist_t @-> returning void)
 end

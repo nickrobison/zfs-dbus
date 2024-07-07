@@ -7,3 +7,4 @@ let string_result = result string zfs_err_testable
 let simple_record = Simple_record.(testable pp equal)
 let compression = Compression.(testable pp equal)
 let compression_result = result compression zfs_err_testable
+let nvpair = NVPair.NVPair.(testable pp equal)

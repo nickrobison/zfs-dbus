@@ -1,6 +1,7 @@
 open Libzfs
 open QCheck2
 open NVPair
+module T = Testables
 
 let gen_typ : NVPair.typ Gen.t =
   let open Gen in
@@ -20,10 +21,13 @@ let dedup_list l =
   let cons e acc = if List.mem e acc then acc else e :: acc in
   List.fold_right cons l []
 
-let nvpair_roundtrip = 
-  let p: NVPair.t = ("test", NVPair.String "hello world") in
-  let p' = NVPair.encode p |> NVPair.decode in
-  Alcotest.(check )
+let nvpair_roundtrip () =
+  let p = ("test", NVPair.String "hello world") in
+  let roundtrip =
+    NVlist.of_pairs [ p ] |> NVlist.encode |> NVlist.decode |> NVlist.pairs
+    |> List.hd
+  in
+  Alcotest.(check T.nvpair) "Should have same value" p roundtrip
 
 let nvpair_list_test =
   [
@@ -37,7 +41,6 @@ let nvpair_list_test =
   ]
 
 let v =
+  let open Alcotest in
   (* let to_alcotest = List.map QCheck_alcotest.to_alcotest in *)
-  ("NVPair tests", [
-    test_case "Simple roundtrip" `Quick 
-  ])
+  ("NVPair tests", [ test_case "Simple roundtrip" `Quick nvpair_roundtrip ])
