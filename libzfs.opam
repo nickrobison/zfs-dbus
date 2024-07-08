@@ -14,7 +14,6 @@ depends: [
   "ctypes-foreign"
   "integers"
   "hmap"
-  "memcpy"
   "ppx_deriving"
   "alcotest-lwt" {with-test}
   "qcheck-core" {with-test}
