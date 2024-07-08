@@ -43,14 +43,20 @@ let simple_create () =
   maybe_cleanup ds
 
 let create_compress () =
+  let rs = Recordsize.of_int 1024 in
   let b =
     Dataset.Builder.create "tiny/cc"
     |> Dataset.Builder.with_compression (Compression.Gzip 7)
+    |> Dataset.Builder.with_recordsize rs
   in
   let ds = Zfs.create_dataset b zfs in
   let res = ds |> Result.map Dataset.compression in
   Alcotest.(check T.compression_result)
     "Should have correct compression" (Ok (Compression.Gzip 7)) res;
+  Alcotest.(check T.recordsize_result)
+    "Should have custom recordsize" (Ok rs)
+    (Result.map Dataset.recordsize ds);
+
   maybe_cleanup ds
 
 let get_properties () =
@@ -59,7 +65,11 @@ let get_properties () =
   Alcotest.(check int) "Should have properties" 33 (List.length props);
   Alcotest.(check T.compression)
     "Should have correct compression compressed" Compression.LZ4
-    (Dataset.compression ds)
+    (Dataset.compression ds);
+  Alcotest.(check T.recordsize)
+    "Should have default record size"
+    (Recordsize.of_int 1048576)
+    (Dataset.recordsize ds)
 
 let v =
   let open Alcotest in

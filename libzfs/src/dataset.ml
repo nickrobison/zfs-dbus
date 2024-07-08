@@ -3,21 +3,34 @@ module M = Libzfs_ffi.M
 type t = { handle : M.Zfs_handle.t; name : string; props : Property_map.t }
 
 module Builder = struct
-  type t = { name : string; compression : Compression.t option }
+  type t = {
+    name : string;
+    compression : Compression.t option;
+    recordsize : Recordsize.t option;
+  }
 
-  let create name = { name; compression = None }
+  let create name = { name; compression = None; recordsize = None }
   let name t = t.name
   let id x = x
   let compression t = Option.fold ~none:Compression.Off ~some:id t.compression
+  let recordsize t = t.recordsize
   let with_compression c t = { t with compression = Some c }
+  let with_recordsize r t = { t with recordsize = Some r }
 
   let to_nvlist t =
     let module L = NVPair.NVlist in
     let l = L.empty () in
     let c = compression t in
-    let k = Property_map.Key.info Compression.key in
-    let pair = Property_key.to_nvpair c k in
-    L.add_nvpair l "compression" pair
+    let ck = Property_map.Key.info Compression.key in
+    let c_pair = Property_key.to_nvpair c ck in
+    let r = recordsize t in
+    let rk = Property_map.Key.info Recordsize.key in
+    let l = L.add_nvpair l "compression" c_pair in
+    Option.fold ~none:l
+      ~some:(fun r ->
+        let r_pair = Property_key.to_nvpair r rk in
+        L.add_nvpair l "recordsize" r_pair)
+      r
 end
 
 let name t = t.name
@@ -40,8 +53,11 @@ let get_props handle =
 let build_properties handle =
   let module L = NVPair.NVlist in
   let nvlist = get_props handle in
-  let ek = extract_key nvlist in
-  let props = Property_map.empty |> ek Compression.key in
+  let props =
+    Property_map.empty
+    |> extract_key nvlist Compression.key
+    |> extract_key nvlist Recordsize.key
+  in
   props
 
 let of_handle handle =
@@ -68,12 +84,10 @@ let dump_properties t =
       (fst p, d))
     (NVlist.pairs nvlist)
 
-(* let open NVPair in
-   let nvlist = properties handle |> NVlist.decode in
-   let ek = extract_key *)
-
 let identity x = x
 
 let compression t =
   Property_map.find Compression.key t.props
   |> Option.fold ~none:Compression.Empty ~some:identity
+
+let recordsize t = Property_map.get Recordsize.key t.props

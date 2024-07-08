@@ -7,6 +7,7 @@ module Builder : sig
 
   val create : string -> t
   val with_compression : Compression.t -> t -> t
+  val with_recordsize : Recordsize.t -> t -> t
   val name : t -> string
   val compression : t -> Compression.t
   val to_nvlist : t -> NVPair.NVlist.t
@@ -22,3 +23,4 @@ val dump_properties : t -> (string * string) list
 (** {2:properties Properties} *)
 
 val compression : t -> Compression.t
+val recordsize : t -> Recordsize.t
