@@ -132,44 +132,13 @@ module M (F : Ctypes.TYPE) = struct
   type nvpair_t = nvpair C.structure
 
   let nvpair_t : nvpair C.structure C.typ = C.structure "nvpair"
-  let nvp_size = C.(field nvpair_t "nvp_size" int32_t)
-  let nvp_name_sz = C.(field nvpair_t "nvp_name_sz" int16_t)
+  let _ = C.(field nvpair_t "nvp_size" int32_t)
+  let _ = C.(field nvpair_t "nvp_name_sz" int16_t)
   let _ = C.(field nvpair_t "nvp_reserve" int16_t)
-  let nvp_elements = C.(field nvpair_t "nvp_value_elem" int32_t)
+  let _ = C.(field nvpair_t "nvp_value_elem" int32_t)
   let _ = C.(field nvpair_t "nvp_type" int64_t)
-  let nvp_name = C.(field nvpair_t "nvp_name" (array 0 char))
+  let _ = C.(field nvpair_t "nvp_name" (array 0 char))
   let () = C.seal nvpair_t
-
-  let string_to_char_array s =
-    let len = String.length s in
-    let buf = C.CArray.make C.char ~initial:'\x00' (len + 1) in
-    String.iteri (fun idx c -> C.CArray.set buf idx c) s;
-    buf
-
-  let size t = C.(getf t nvp_size) |> Int32.to_int
-
-  let name t =
-    let open C in
-    let len = getf t nvp_name_sz in
-    let name_start = getf t nvp_name |> CArray.start in
-    let name = CArray.from_ptr name_start len |> CArray.to_list in
-    let buf = Buffer.create len in
-    List.iter (Buffer.add_char buf) name;
-    Buffer.contents buf
-
-  let set_name name t =
-    let name_len = String.length name + 1 in
-    C.setf t nvp_name_sz name_len;
-    let name_arry = string_to_char_array name in
-    C.(setf t nvp_name name_arry);
-    ()
-
-  let name_size t = C.(getf t nvp_name_sz)
-  let elements t = C.(getf t nvp_elements) |> Int32.to_int
-
-  let set_elements elems t =
-    let elems = Int32.of_int elems in
-    C.(setf t nvp_elements elems)
 
   type zio_compress =
     [ `Inherit

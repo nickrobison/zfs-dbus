@@ -47,15 +47,6 @@ module M (F : Ctypes.TYPE) : sig
   type nvpair
   type nvpair_t = nvpair C.structure
 
-  val name : nvpair_t -> string
-  val size : nvpair_t -> int
-  val set_name : string -> nvpair_t -> unit
-  val name_size : nvpair_t -> int
-  val elements : nvpair_t -> int
-  val set_elements : int -> nvpair_t -> unit
-  (* val dtype: nvpair_t -> data_type_t
-     val set_dtype: nvpair_t -> data_type_t -> nvpair_t *)
-
   val nvpair_t : nvpair_t C.typ
 
   type zio_compress =
