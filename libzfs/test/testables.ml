@@ -8,3 +8,4 @@ let simple_record = Simple_record.(testable pp equal)
 let compression = Compression.(testable pp equal)
 let compression_result = result compression zfs_err_testable
 let nvpair = NVPair.NVPair.(testable pp equal)
+let unit = result unit zfs_err_testable

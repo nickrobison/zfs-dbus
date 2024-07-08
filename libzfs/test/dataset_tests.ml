@@ -17,8 +17,8 @@ let open_dataset name =
   | Error e -> Alcotest.fail (Zfs_exception.show e)
 
 let maybe_cleanup ds =
-  let _ = Result.map (fun d -> Dataset.destroy d) ds in
-  ()
+  let ds' = Result.bind ds Dataset.destroy in
+  Alcotest.(check T.unit) "Should have destroyed the dataset" (Ok ()) ds'
 
 let create_no_pool () =
   (* Create outside of pools *)
@@ -35,7 +35,7 @@ let create_no_ancestor () =
     "Should fail due to missing ancestor" (Error missing_ancestor) ds
 
 let simple_create () =
-  let name = "tank/test123" in
+  let name = "tiny/test123" in
   let b = Dataset.Builder.create name in
   let ds = Zfs.create_dataset b zfs in
   let res = Result.map Dataset.name ds in
@@ -67,7 +67,7 @@ let v =
     [
       test_case "Dataset creation without pool" `Quick create_no_pool;
       test_case "Dataset creation without ancestor" `Quick create_no_ancestor;
-      (* test_case "Dataset creation" `Quick simple_create; *)
+      test_case "Dataset creation" `Quick simple_create;
       test_case "Dataset properties" `Quick get_properties;
       test_case "Dataset creation with compression" `Quick create_compress;
     ] )
