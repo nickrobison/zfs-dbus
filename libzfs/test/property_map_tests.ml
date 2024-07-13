@@ -2,13 +2,14 @@ open Libzfs
 
 let of_nvpair _ = None
 let to_nvpair _ = ("Nope", NVPair.NVPair.Bool false)
+let of_property _ = None
 
 let string_key name =
-  Property_key.create name Fmt.string of_nvpair to_nvpair
+  Property_key.create name Fmt.string of_nvpair to_nvpair of_property
   |> Property_map.Key.create
 
 let int_key name =
-  Property_key.create name Fmt.int of_nvpair to_nvpair
+  Property_key.create name Fmt.int of_nvpair to_nvpair of_property
   |> Property_map.Key.create
 
 let simple_tests () =

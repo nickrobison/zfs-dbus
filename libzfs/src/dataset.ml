@@ -35,28 +35,33 @@ end
 
 let name t = t.name
 
-let extract_key nvlist k pm =
-  Format.printf "From list: %a\n" NVPair.NVlist.pp nvlist;
+let extract_key properties k pm =
   let k2 = Property_map.Key.info k in
   let module L = NVPair.NVlist in
   let name = Property_key.name k2 in
-  match L.get_nvpair nvlist name with
+  let prop = List.find_opt (fun p -> Zfs_property.name p = name) properties in
+  match prop with
   | None -> pm
   | Some v ->
-      let vv = Property_key.of_nvpair v k2 |> Option.get in
+      let vv = Property_key.of_property v k2 |> Option.get in
       Property_map.add k vv pm
 
 let get_props handle =
   let open NVPair in
-  M.zfs_all_properties handle |> NVlist.decode
+  let props = M.zfs_all_properties handle |> NVlist.decode |> NVlist.pairs in
+  Fmt.(pr "%a" (list NVPair.pp) props);
+  List.fold_left
+    (fun acc p ->
+      match Zfs_property.of_nvpair p with Some p -> p :: acc | None -> acc)
+    [] props
 
 let build_properties handle =
   let module L = NVPair.NVlist in
-  let nvlist = get_props handle in
+  let properties = get_props handle in
   let props =
     Property_map.empty
-    |> extract_key nvlist Compression.key
-    |> extract_key nvlist Recordsize.key
+    |> extract_key properties Compression.key
+    |> extract_key properties Recordsize.key
   in
   props
 
@@ -77,12 +82,12 @@ let destroy ?(force = false) t =
 
 let dump_properties t =
   let open NVPair in
-  let nvlist = get_props t.handle in
+  let properties = get_props t.handle in
   List.map
     (fun p ->
-      let d = Fmt.to_to_string NVPair.pp_typ (snd p) in
-      (fst p, d))
-    (NVlist.pairs nvlist)
+      let p_value = NVPair.show_typ (Zfs_property.value p) in
+      (Zfs_property.name p, p_value))
+    properties
 
 let identity x = x
 

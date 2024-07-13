@@ -62,7 +62,7 @@ let create_compress () =
 let get_properties () =
   let ds = open_dataset "tank/media/audio" in
   let props = Dataset.dump_properties ds in
-  Alcotest.(check int) "Should have properties" 33 (List.length props);
+  Alcotest.(check int) "Should have properties" 32 (List.length props);
   Alcotest.(check T.compression)
     "Should have correct compression compressed" Compression.LZ4
     (Dataset.compression ds);

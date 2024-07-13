@@ -18,6 +18,11 @@ let of_nvpair p =
 
 let to_nvpair t = (name, NVPair.NVPair.Uint64 (Unsigned.UInt64.of_int64 t))
 
+let of_property p =
+  match (Zfs_property.name p, Zfs_property.value p) with
+  | n, NVPair.NVPair.Uint64 i when name = n -> Some (Unsigned.UInt64.to_int64 i)
+  | _ -> None
+
 let key =
-  Property_key.create name Fmt.int64 of_nvpair to_nvpair
+  Property_key.create name Fmt.int64 of_nvpair to_nvpair of_property
   |> Property_map.Key.create
