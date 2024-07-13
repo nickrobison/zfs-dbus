@@ -49,7 +49,6 @@ let extract_key properties k pm =
 let get_props handle =
   let open NVPair in
   let props = M.zfs_all_properties handle |> NVlist.decode |> NVlist.pairs in
-  Fmt.(pr "%a" (list NVPair.pp) props);
   List.fold_left
     (fun acc p ->
       match Zfs_property.of_nvpair p with Some p -> p :: acc | None -> acc)
@@ -82,12 +81,12 @@ let destroy ?(force = false) t =
 
 let dump_properties t =
   let open NVPair in
-  let properties = get_props t.handle in
+  let props = M.zfs_all_properties t.handle |> NVlist.decode |> NVlist.pairs in
   List.map
     (fun p ->
-      let p_value = NVPair.show_typ (Zfs_property.value p) in
-      (Zfs_property.name p, p_value))
-    properties
+      let p_value = Fmt.(str "%a" NVPair.pp_typ (snd p)) in
+      (fst p, p_value))
+    props
 
 let identity x = x
 
