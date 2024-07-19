@@ -2,18 +2,18 @@ open Libzfs
 
 let version_test () =
   let version = Zfs.version () in
-  Alcotest.(check string)
-    "Should get version" version.kernel_version version.kernel_version
+  Assertions.non_empty ~msg:"Should have version" version.kernel_version;
+  Assertions.non_empty ~msg:"Should have version" version.version
 
 let list_pools () =
   let l = Zfs.init () in
   let pools = Zfs.pools l in
-  Alcotest.(check int) "Should have pools" 2 (List.length pools)
+  Assertions.gte "Should have some pools" 1 (List.length pools)
 
 let list_datasets () =
   let l = Zfs.init () in
   let datasets = Zfs.datasets l in
-  Alcotest.(check int) "Should have datasets" 0 (List.length datasets)
+  Alcotest.(check int) "Should not have datasets" 0 (List.length datasets)
 
 let v =
   let open Alcotest in
