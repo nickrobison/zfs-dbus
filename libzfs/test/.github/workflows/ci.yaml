@@ -1,0 +1,30 @@
+name: CI
+
+on:
+    pull_request:
+        branches:
+            - "**"
+    push:
+        branches:
+            - master
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install ZFS
+              run: sudo apt-get install zfsutils-linux
+            - name: Create a pool
+              run: |
+                sudo truncate -s 64M /tank/test/zpool
+                sudo zpool create tank /tank/test/zpool
+                zpool list
+            - name: Setup OCaml
+              uses: ocaml/setup-ocaml@v3
+              with:
+                ocaml-compiler: "5.2"
+            - run: opam install . --deps-only --with-test
+            - run: opam exec -- dune build
+            - run: opam exec -- dune runtest
