@@ -16,8 +16,8 @@ jobs:
               run: sudo apt-get install zfsutils-linux
             - name: Create a pool
               run: |
-                sudo truncate -s 64M /tank/test/zpool
-                sudo zpool create tank /tank/test/zpool
+                sudo truncate -s 64M /testpool
+                sudo zpool create tank /testpool
                 zpool list
             - name: Setup OCaml
               uses: ocaml/setup-ocaml@v3
