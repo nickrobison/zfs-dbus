@@ -13,7 +13,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
             - name: Install ZFS
-              run: sudo apt-get install zfsutils-linux
+              run: sudo apt-get install zfsutils-linux libzfslinux-dev
             - name: Create a pool
               run: |
                 sudo truncate -s 64M /testpool
