@@ -1,3 +1,16 @@
 (library
  (name zfs_dbus)
  (libraries libzfs lwt logs obus))
+
+(rule
+ (targets zfs_interfaces.ml zfs_interfaces.mli)
+ (deps zfs_dbus.obus)
+ (action
+  (run
+   obus-gen-interface
+   -keep-common
+   -mode
+   server
+   -o
+   zfs_interfaces
+   %{deps})))

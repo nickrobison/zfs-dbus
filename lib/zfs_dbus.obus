@@ -1,0 +1,9 @@
+
+interface com.nickrobison.dbus.ZFS1 {
+    property_r Version: string
+    method Pools: () -> (pools: object_path array)
+}
+
+interface com.nickrobison.dbus.ZFS1.Pool {
+    property_r name: string
+}
