@@ -1,5 +1,5 @@
 (executable
- (public_name zfs_dbus)
+ (public_name zdbus)
  (package zfs_dbus)
  (name main)
- (libraries zfs_dbus))
+ (libraries zfs_dbus logs.fmt))

@@ -18,9 +18,9 @@
 
 (package
  (name zfs_dbus)
- (synopsis "A short synopsis")
- (description "A longer description")
- (depends ocaml dune)
+ (synopsis "A DBus interface for ZFS")
+ (description "DBus service for configuring and managing ZFS")
+ (depends ocaml dune logs cmdliner obus)
  (tags
   (topics "to describe" your project)))
 

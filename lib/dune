@@ -1,2 +1,3 @@
 (library
- (name zfs_dbus))
+ (name zfs_dbus)
+ (libraries libzfs lwt logs obus))
