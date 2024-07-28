@@ -17,7 +17,8 @@ let () =
         | None -> raise (Invalid_argument "Need pkg_config")
       in
       C.Flags.write_lines "cflags" cfg.cflags;
-      C.Flags.write_sexp "cflags.sexp" (cfg.cflags @ [ "-D_LARGEFILE64_SOURCE" ]);
+      (* Temporarily disabling some warnings so we can build under GCC14. It's gross, but I'm not sure what else to do. *)
+      C.Flags.write_sexp "cflags.sexp" (cfg.cflags @ [ "-D_LARGEFILE64_SOURCE"; "-Wno-discarded-qualifiers"; "-Wno-incompatible-pointer-types" ]);
       C.Flags.write_sexp "c_library_flags.sexp"
         ([ cstubs_cflags ] @ cfg.libs @ cfg.cflags);
       C.Flags.write_lines "ctypes-cflags" ([ cstubs_cflags ] @ cfg.cflags);
