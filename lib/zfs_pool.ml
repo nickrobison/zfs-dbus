@@ -6,13 +6,10 @@ let name pool _obj =
 
 let interface pool =
   Zfs_interfaces.Com_nickrobison_dbus_ZFS1_Pool.make
-    { Zfs_interfaces.Com_nickrobison_dbus_ZFS1_Pool.p_name = name pool }
+    { Zfs_interfaces.Com_nickrobison_dbus_ZFS1_Pool.p_Name = name pool }
 
 let create pool =
   let name = Zpool.name pool in
-  let obj =
-    OBus_object.make
-      ~interfaces:[ interface pool ]
-      [ "/com/nickrobison/dbus/zfs1"; name ]
-  in
+  let obj = OBus_object.make ~interfaces:[ interface pool ] [ name ] in
+  OBus_object.attach obj ();
   obj

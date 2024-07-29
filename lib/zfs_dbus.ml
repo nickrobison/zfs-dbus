@@ -13,7 +13,7 @@ let version _obj =
 
 let path_of_pool pool =
   let name = L.Zpool.name pool in
-  OBus_path.of_string ("/com/nickrobison/dbus/zfs/pool/" ^ name)
+  OBus_path.of_string ("/com/nickrobison/dbus/zfs1/pool/" ^ name)
 
 let pools zfs _obj () =
   let pools = L.Zfs.pools zfs in
@@ -27,10 +27,16 @@ let interface zfs =
     }
 
 let zpool_handler zfs _ctx path =
+  let path' = OBus_path.to_string path in
+  let p' = String.sub path' 1 (String.length path' - 1) in
+  Log.info (fun f -> f "Attempting to open pool: %s" p');
+
+  let pool = L.Zfs.get_pool zfs p' |> Option.get in
+  let obj = Zfs_pool.create pool in
   Log.info (fun f ->
-      f "Attempting to create pool: %s" (OBus_path.to_string path));
-  let p = L.Zfs.get_pool zfs (OBus_path.to_string path) |> Option.get in
-  Lwt.return (Zfs_pool.create p)
+      f "Finally created pool object with path %s"
+        (OBus_object.path obj |> OBus_path.to_string));
+  Lwt.return obj
 
 let start msg bus =
   info msg;

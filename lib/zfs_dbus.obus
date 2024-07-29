@@ -5,5 +5,5 @@ interface com.nickrobison.dbus.ZFS1 {
 }
 
 interface com.nickrobison.dbus.ZFS1.Pool {
-    property_r name: string
+    property_r Name: string
 }
