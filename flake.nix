@@ -42,6 +42,7 @@
           inputsFrom = builtins.attrValues packages;
           buildInputs = devPackages ++ [
             # You can add packages from nixpkgs here
+            pkgs.dune_3
           ];
         };
       });
