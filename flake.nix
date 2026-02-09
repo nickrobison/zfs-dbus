@@ -21,7 +21,8 @@
         scope = on.buildOpamProject' { } ./. query;
         overlay = final: prev:
           {
-            # You can add overrides here
+            # Override dune to use nixpkgs version instead of opam
+            dune = pkgs.dune_3;
           };
         scope' = scope.overrideScope' overlay;
         # Packages from devPackagesQuery
@@ -42,7 +43,6 @@
           inputsFrom = builtins.attrValues packages;
           buildInputs = devPackages ++ [
             # You can add packages from nixpkgs here
-            pkgs.dune_3
           ];
         };
       });
